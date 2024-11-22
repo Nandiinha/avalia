@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import Turma
-from .models import Student
-from .models import Activity
-from .models import Answer
+
+from .models import Activity, Answer, Student, Turma
+
 # Register your models here.
 
 admin.site.register(Turma)

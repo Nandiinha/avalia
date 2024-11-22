@@ -5,58 +5,116 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Activity',
+            name="Activity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('description', models.TextField(blank=True, max_length=1000, null=True)),
-                ('question', models.CharField(blank=True, max_length=200, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                (
+                    "description",
+                    models.TextField(blank=True, max_length=1000, null=True),
+                ),
+                ("question", models.CharField(blank=True, max_length=200, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Student',
+            name="Student",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=150)),
-                ('email', models.EmailField(max_length=254)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=150)),
+                ("email", models.EmailField(max_length=254)),
             ],
         ),
         migrations.CreateModel(
-            name='Turma',
+            name="Turma",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('section', models.CharField(max_length=100)),
-                ('description', models.CharField(max_length=1000)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("section", models.CharField(max_length=100)),
+                ("description", models.CharField(max_length=1000)),
             ],
         ),
         migrations.CreateModel(
-            name='Answer',
+            name="Answer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('studentAnswer', models.FileField(blank=True, null=True, upload_to='uploads')),
-                ('score', models.DecimalField(decimal_places=1, max_digits=2)),
-                ('feedback', models.CharField(blank=True, max_length=1000, null=True)),
-                ('id_activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to='correction.activity')),
-                ('id_student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='answers', to='correction.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "studentAnswer",
+                    models.FileField(blank=True, null=True, upload_to="uploads"),
+                ),
+                ("score", models.DecimalField(decimal_places=1, max_digits=2)),
+                ("feedback", models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "id_activity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="answers",
+                        to="correction.activity",
+                    ),
+                ),
+                (
+                    "id_student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="answers",
+                        to="correction.student",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='student',
-            name='id_class',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='students', to='correction.turma'),
+            model_name="student",
+            name="id_class",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="students",
+                to="correction.turma",
+            ),
         ),
         migrations.AddField(
-            model_name='activity',
-            name='id_class',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities', to='correction.turma'),
+            model_name="activity",
+            name="id_class",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="activities",
+                to="correction.turma",
+            ),
         ),
     ]
