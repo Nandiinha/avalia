@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <title>Atividade</title>
+</head>
+<body>
+    {% include 'menu.html' %}
+
+    <div class="container content-item">  
+        <div class="activity-details-box">    
+            <h5 class="activity-title">{{ activity.name }}</h5>
+            <p class="activity-description"><strong>Descrição: </strong>{{ activity.description }}</p>
+            <p class="activity-question"><strong>Questão:</strong> {{ activity.question }}</p>
+            <button type="button" class="btn btn-light edit-icon" data-toggle="modal" data-target="#editActivityModal" title="Editar atividade">
+            <i class="fas fa-pencil-alt"></i> <!-- Font Awesome -->
+            </button>
+        </div>
+
+        <!-- Botão para iniciar correção -->
+        <button type="button" class="mt-3 row-itens" data-toggle="modal" data-target="#correctionModal">Iniciar correção</button>
+        
+        <ul class="mt-3">
+            {% for answer in answers %}
+                <a href="{% url 'select_answer' answer.id %}" class="row-itens d-flex justify-content-between align-items-center">
+                    <span>{{ answer.id_student.name }}</span>
+                    <span class="score">{{ answer.score }}/10.0</span>
+                </a>
+    {% empty %}
+                <li class="row-itens">Nenhuma correção encontrada.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="correctionModal" tabindex="-1" aria-labelledby="answerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="answerModalLabel">Nova correção</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="correctionModal_AlertPlaceHolder">
+                    </div>    
+                    <!-- Formulário de envio para extração de texto -->
+                    <form id="answerForm" method="POST" enctype="multipart/form-data" action="{% url 'extract_text' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="studentName">Aluno</label>
+                            <select class="form-control" id="studentName" name="studentName">
+                                <option value="" disabled selected>Selecione um aluno</option>
+                                {% for student in students %}
+                                    <option value="{{ student.id }}">{{ student.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div id="studentAnswerdiv" class="form-group">
+                            <label for="studentAnswer">Resposta do aluno</label>
+                            <input type="file" class="form-control-file" id="studentAnswer" name="studentAnswer" required>
+                        </div>
+                        <div id="extract_valuediv" class="form-group display-tags">
+                            <label for="extract_value">Texto extraído</label>
+                            <textarea class="form-control" id="extract_value" name="extract_value" rows="3" placeholder="" readonly></textarea>
+                        </div>
+                        <div id="scorediv" class="form-group display-tags">
+                            <label for="score">Nota</label>
+                            <input class="form-control" id="score" name="score" rows="3" placeholder=""></input>
+                        </div>
+                        <div id="feedbackdiv" class="form-group display-tags">
+                            <label for="feedback">Feedback</label>
+                            <textarea class="form-control" id="feedback" name="feedback" rows="3" placeholder=""></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="corrigirButton" type="button" class="btn btn-primary" onclick="startCorrection()">Corrigir</button>
+                    <button id="salvarButton" type="button" class="btn btn-primary display-tags" onclick="saveCorrection({{ activity.id }})">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                </div>  
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editActivityModal" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editActivityModalLabel">Editar Atividade</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST" action="{% url 'update_activity' activity.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="activityName">Nome da Atividade</label>
+                            <input type="text" class="form-control" id="activityName" name="name" value="{{ activity.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="activityDescription">Descrição</label>
+                            <textarea class="form-control" id="activityDescription" name="description" rows="3"required>{{ activity.description }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="activityQuestion">Questão</label>
+                            <textarea class="form-control" id="activityQuestion" name="question" rows="3" required>{{ activity.question }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="submit" formaction="{% url 'delete_activity' activity.id %}" class="btn btn-delete ml-2">Deletar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

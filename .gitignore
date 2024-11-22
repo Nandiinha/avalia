@@ -1,0 +1,48 @@
+# Sistema operacional
+*.DS_Store
+*.swp
+Thumbs.db
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+*.env
+__pycache__/
+**/__pycache__/
+env/
+venv/
+ENV/
+.env
+*.egg-info/
+
+# Editor
+.vscode/
+.idea/
+
+# Logs e relatórios
+*.log
+*.sqlite3
+*.db
+*.pid
+
+# Django
+/staticfiles/
+/media/
+/*.log
+db.sqlite3
+*.pot
+*.pyc
+*.pyo
+
+# Migrations geradas
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/*.py
+
+# Node.js
+node_modules/
+
+# Configurações locais
+local_settings.py

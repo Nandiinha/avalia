@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {% load static %}
+    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://kit.fontawesome.com/f0a14fd364.js" crossorigin="anonymous"></script>
+</head>
+<body class="login-js">
+    {% include 'popup.html' %}
+    <div class="container">
+        <div class="content first-content">
+            <div class="first-column">
+                <h2 class="title">Bem-vindo!</h2>
+                <p class="first-description">Entre com suas credenciais</p>
+                <p class="second-description">Ainda não tem uma conta?</p>
+                <button id="redirect-register"class="btn secondary-button">Cadastre-se</button>
+            </div>    
+            <div class="second-column">
+                <form action="{% url 'login' %}" method="POST" class="form"> {% csrf_token %}
+                    <label class="label-input" for="">
+                        <i class="fa-solid fa-envelope icon-modify"></i>
+                        <input type="email" placeholder="Email" name="emailLogin">
+                    </label>
+                    <label class="label-input" for="">
+                        <i class="fa-solid fa-lock icon-modify"></i>
+                        <input type="password" placeholder="Senha" name="passwordLogin">
+                    </label>
+                    <button class="btn primary-button">Entrar</button>
+                </form>
+                <a href="" class="link">Esqueci minha senha</a>
+            </div>
+        </div> <!-- Fechamento da primeira content -->
+
+        <div class="content second-content">
+            <div class="first-column">
+                <h2 class="title">Criar conta</h2>
+                <p class="first-description">Cadastre-se na plataforma!</p>
+                <p class="second-description">Já tem uma conta?</p>
+                <button id="redirect-login"class="btn secondary-button">Entrar</button>
+            </div>    
+            <div class="second-column">
+                <form action="{% url 'register' %}" method="POST" class="form"> {% csrf_token %}
+                    <label class="label-input" for="">
+                        <i class="fa-solid fa-user icon-modify"></i>
+                    <input type="text" placeholder="Nome" name="usernameRegister">
+                    </label>
+                    <label class="label-input" for="">
+                        <i class="fa-solid fa-envelope icon-modify"></i>
+                    <input type="email" placeholder="Email" name="emailRegister">
+                    </label>
+                    <label class="label-input" for="">
+                        <i class="fa-solid fa-lock icon-modify"></i>
+                    <input type="password" placeholder="Senha" name="passwordRegister">
+                    </label>
+                    <label class="label-input" for="">
+                        <i class="fa-solid fa-lock icon-modify"></i>
+                    <input type="password" placeholder="Confirmar senha" name="confirmPasswordRegister">
+                    </label>
+                    <button type="submit" class="btn primary-button">Criar conta</button>
+                </form>
+            </div>
+        </div> <!-- Fechamento da segunda content -->
+    </div>  
+    <script src="{% static 'js/scripts.js' %}"></script>          
+</body>
+</html>

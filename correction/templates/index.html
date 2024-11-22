@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <title>Início</title>
+</head>
+<body>
+   <!--Referência ao menu-->
+   {% include 'menu.html' %}
+    <main class="cards">
+        {% for turma in turma %}
+            <section class="card">
+                <div class="card-image">
+                    <img src="{% static 'capaCard.png' %}">
+                </div>
+                <h3>{{ turma.name }}</h3>
+                <span>{{ turma.section }}</span>
+               <!-- <a href="{% url 'activities' turma.id %}">-->
+                <a href="{% url 'activities' turma.id %}" class="btn btn-primary">></a>
+            </section>
+        {% endfor %}
+    </main>
+    <div class="toggle" onclick="toggleMenu();"></div>
+
+    <script src="{% static 'js/utils.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <title>{{ turma.name}}</title>
+</head>
+<body>
+    <nav class="navbar navbar-light bg-faded">
+        <a class="navbar-brand">Avalia >{{ turma.name}}</a>
+    </nav>
+    <div class="navigation">
+        <ul>
+            <li>
+                <a href="{% url 'home' %}">
+                    <span class="icon"><i class="fa-solid fa-house"></i></span>
+                    <span class="title">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'cursos' %}">
+                    <span class="icon"><i class="fa-solid fa-users-line"></i></span>
+                    <span class="title">Cursos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-toggle="modal" data-target="#novaTurmaModal">
+                    <span class="icon"><i class="fa-solid fa-plus"></i></span>
+                    <span class="title">Nova Turma</span>
+                </a>
+            </li>
+            <li class="config">
+                <a href="#">
+                    <span class="icon"><i class="fa-solid fa-gear"></i></span>
+                    <span class="title">Configurações</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+                    <span class="title">Sair</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="toggle" onclick="toggleMenu();"></div>
+    <!-- Modal para Nova Turma -->
+    <div class="modal fade" id="novaTurmaModal" tabindex="-1" role="dialog" aria-labelledby="novaTurmaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="novaTurmaModalLabel">Nova Turma</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'salvar' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="nomeTurma" class="col-form-label">Nome da Turma:</label>
+                                    <input type="text" name="name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="secao" class="col-form-label">Seção:</label>
+                                    <input type="text" name="section">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function toggleMenu(){
+            let navigation = document.querySelector('.navigation');
+            let toggle = document.querySelector('.toggle');
+            navigation.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Abas da turma 
+    <div class="container custom-container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'activities' turma.id %}">Atividades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'students' turma.id %}">Alunos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'details' turma.id %}">Detalhes</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div> -->
+
+    <!-- Abas da turma -->
+    <div class="container custom-container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a id="nav-activities" class="nav-link" href="{% url 'activities' turma.id %}">Atividades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="nav-students" class="nav-link" href="{% url 'students' turma.id %}">Alunos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="nav-details" class="nav-link" href="{% url 'details' turma.id %}">Detalhes</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtenha a URL atual
+            var currentUrl = window.location.href;
+
+            // Selecione todos os links de navegação
+            var navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+            // Itere sobre os links e verifique se o href corresponde à URL atual
+            navLinks.forEach(function(link) {
+                if (currentUrl.includes(link.getAttribute('href'))) {
+                    // Adiciona a classe active ao item pai (nav-item)
+                    link.parentElement.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
