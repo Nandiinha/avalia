@@ -1,0 +1,165 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    font-family: "Roboto", sans-serif;
+
+}
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ebebeb;
+}
+.content{
+    background-color: #fff;
+    border-radius: 15px;
+    width: 80%;
+    height: 70%;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+.content::before{
+    content: "";
+    position: absolute;
+    background-color: #5bc0be;
+    width: 40%;
+    height: 100%;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    left: 0;
+}
+.first-content{
+    display: flex;
+}
+.first-content .second-column{
+    z-index: 12;
+}
+.title{
+    color: #fff;
+    font-size: 28px;
+    font-weight: bolder;
+    text-transform: capitalize;
+}
+.first-description{
+    color: #fff;
+    font-size: 14px;
+}
+.second-description{
+    color: #fff;
+    font-size: 14px;
+    margin-top:110px
+}
+.btn{
+    text-transform: uppercase;
+    color: #fff;
+    font-size: 10px;
+    padding: 10px 30px;
+    cursor: pointer;
+    font-weight: bolder;
+    margin: 5px;
+    width: 150px;
+    align-self: center;
+    border: none;
+    border-radius: 15px;
+}
+.secondary-button{
+    background-color: transparent;
+    border: 1px solid #fff;
+    
+}
+.secondary-button:hover{
+    background-color: #fff;
+    color: #5bc0be;
+}
+.primary-button{
+    background-color: #5bc0be;
+    border:  1px solid #5bc0be;
+    margin-top: 10px;
+}
+.primary-button:hover{
+    background-color: #fff;
+    color: #5bc0be;
+}
+.first-column{
+    text-align: center;
+    width: 40%;
+    z-index: 1;
+}
+.second-column{
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 55%;
+    margin-top: 45px;
+}
+.form input{
+    height: 40px;
+    width: 100%;
+    border: none;
+    background-color: #ebebeb;
+    margin: 8px;
+    outline: none;
+}
+.label-input{
+    background-color: #ebebeb;
+    display: flex;
+    align-items: center;
+    margin: 8px;
+    border-radius: 15px;
+    padding: 0 10px;
+
+}
+.icon-modify{
+    color: #7f8c8d;
+    padding: 0 5px;
+}
+a.link {
+    color: #7f8c8d !important;
+    text-decoration: none !important;
+}
+
+a.link:hover {
+    text-decoration: underline !important;
+}
+.second-content{
+    position: absolute;
+    display: flex;
+}
+.second-content .first-column{
+    order: 2;
+}
+.second-content .second-column{
+    order: 1;
+}
+.register-js .first-content .first-column, 
+.register-js .first-content .second-column{
+    z-index: -1;
+}
+.register-js .second-content .first-column, 
+.register-js .second-content .second-column{
+    z-index: 12;
+}
+.register-js .content::before{
+    left: 60%;
+}
+.login-js .second-content .first-column,
+.login-js .second-content .second-column{
+    z-index: -1;
+}
+.login-js .first-content .first-column,
+.login-js .first-content .second-column{
+    z-index: 12;
+}

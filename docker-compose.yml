@@ -9,9 +9,13 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - sqlite_data:${DB_DIR}/${DB_NAME}  # Usa o diretório e o nome do banco do .env
     env_file:
-      - .env  # Carrega as variáveis do arquivo .env
+      - .env
     command: >
       sh -c "
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  sqlite_data:

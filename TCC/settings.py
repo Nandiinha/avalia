@@ -78,11 +78,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "TCC.wsgi.application"
 
-# Database
+# Banco de Dados
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / os.getenv("DB_NAME", "db.sqlite3"),
+        "NAME": os.path.join(
+            os.getenv("DB_DIR", BASE_DIR),  # Diretório do banco (raiz do projeto)
+            os.getenv("DB_NAME", "db.sqlite3")  # Nome padrão do arquivo
+        ),
     }
 }
 
