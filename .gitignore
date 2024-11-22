@@ -37,9 +37,9 @@ db.sqlite3
 
 # Migrations geradas
 */migrations/__pycache__/
-*/migrations/*.pyc
-*/migrations/*.pyo
-*/migrations/*.py
+# */migrations/*.pyc
+# */migrations/*.pyo
+# */migrations/*.py
 
 # Node.js
 node_modules/
