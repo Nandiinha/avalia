@@ -39,12 +39,12 @@ Certifique-se de ter os seguintes softwares instalados em sua máquina:
    - **Linux/Mac:**  
      Use o comando:
      ```bash
-     cp .env.example .env
+     cp .env.local .env
      ```
    - **Windows:**  
      Execute este comando no terminal PowerShell:
         ```powershell
-        copy .env.example .env
+        copy .env.local .env
         ```
 
 5. **Execute as Migrações do Banco de Dados:**

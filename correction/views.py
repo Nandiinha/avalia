@@ -1,11 +1,17 @@
+import mimetypes
+import os
+import re
 from decimal import Decimal, InvalidOperation
 
+import docx
+import easyocr
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as loginDjango
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http.response import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from PyPDF2 import PdfReader
 
 from .models import Activity, Answer, Student, Turma
 

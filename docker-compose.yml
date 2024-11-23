@@ -6,16 +6,16 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${DJANGO_PORT:-8000}:${DJANGO_PORT:-8000}"
     volumes:
-      - .:/app
-      - sqlite_data:${DB_DIR}/${DB_NAME}  # Usa o diretório e o nome do banco do .env
+      - .:/app  # Sincroniza o código local com o container
+      - sqlite_data:/app  # Persistência do banco no container
     env_file:
-      - .env
-    command: >
+      - .env.docker 
+    entrypoint: >
       sh -c "
       python manage.py migrate &&
-      python manage.py runserver 0.0.0.0:8000"
+      python manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000}"
 
 volumes:
   sqlite_data:

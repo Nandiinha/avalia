@@ -11,7 +11,7 @@ Este guia explica como configurar e rodar o projeto **Avalia Django App** usando
 
 1. **Crie o arquivo `.env` com base no exemplo:**
    ```bash
-   cp .env.example .env
+   cp .env.docker .env
    ```
 
 2. **Construa e inicie os containers:**
