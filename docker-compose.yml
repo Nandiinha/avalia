@@ -9,7 +9,8 @@ services:
       - "${DJANGO_PORT:-8000}:${DJANGO_PORT:-8000}"
     volumes:
       - .:/app  # Código local -> Caminho no container
-      - ${DB_SQLITE_HOST_PATH:-./db.sqlite3}:${DB_SQLITE_PATH:-/app/db.sqlite3}  # Banco persistente
+      # - ${DB_SQLITE_HOST_PATH:-./db.sqlite3}:${DB_SQLITE_PATH:-/app/db.sqlite3}  # Banco persistente
+      - ./db.sqlite3:/app/db.sqlite3
     env_file:
       - .env.docker
     entrypoint: >

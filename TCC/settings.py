@@ -42,21 +42,21 @@ if not SECRET_KEY:
     raise ValueError("SECRET_KEY não definido para produção!")
 
 # Banco de Dados
-DB_SQLITE_FILEPATH = os.getenv("DB_SQLLITE_PATH", os.path.join(BASE_DIR, "db.sqlite3"))
+DB_SQLLITE_PATH = os.getenv("DB_SQLLITE_PATH", os.path.join(BASE_DIR, "db.sqlite3"))
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": DB_SQLITE_FILEPATH,
+        "NAME": DB_SQLLITE_PATH,
     }
 }
 
 # Verificar se o arquivo do banco de dados existe
-if os.path.exists(DB_SQLITE_FILEPATH):
-    logger.info(f"App Log - Usando banco de dados existente em: {DB_SQLITE_FILEPATH}")
+if os.path.exists(DB_SQLLITE_PATH):
+    logger.info(f"App Log - Usando banco de dados existente em: {DB_SQLLITE_PATH}")
 else:
     logger.warning(
-        f"App Log - O banco de dados não existe. Será criado em: {DB_SQLITE_FILEPATH}"
+        f"App Log - O banco de dados não existe. Será criado em: {DB_SQLLITE_PATH}"
     )
 
 # Application definition
