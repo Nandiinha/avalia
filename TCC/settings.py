@@ -51,7 +51,10 @@ DATABASES = {
     }
 }
 
-# Verificar se o arquivo do banco de dados existe
+# Logar o ambiente de execução
+logger.info(f"App Log - Ambiente de execução: {'Desenvolvimento' if IS_DEVELOPMENT else 'Produção'}")
+
+# Verificar se o arquivo do banco de dados existe e logar o caminho
 if os.path.exists(DB_SQLLITE_PATH):
     logger.info(f"App Log - Usando banco de dados existente em: {DB_SQLLITE_PATH}")
 else:
@@ -161,5 +164,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "http://127.0.0.1,http://localhost" if IS_DEVELOPMENT else "",
 ).split(",")
 
-# Logging para informar a porta configurada
+# Logging adicional
 logger.info(f"App Log - Servidor Django configurado para rodar na porta {DJANGO_PORT}")
+logger.info(f"App Log - Caminho do banco de dados configurado: {DB_SQLLITE_PATH}")
+logger.info(f"App Log - Valor de DEBUG: {DEBUG}")

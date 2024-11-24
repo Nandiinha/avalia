@@ -26,18 +26,35 @@ help:
 	@echo "    make docker-deploy     - Fazer deploy da aplicação com tag baseada no commit"
 
 # ============================
+# Logs das Configurações
+# ============================
+
+# Logar as configurações do ambiente
+.PHONY: log-config
+log-config:
+	@echo "================ Configurações ================="
+	@echo "Nome da aplicação: $(APP_NAME)"
+	@echo "Imagem Docker: $(DOCKER_IMAGE)"
+	@echo "Porta do Docker: $(DOCKER_PORT)"
+	@echo "Porta do Container: $(CONTAINER_PORT)"
+	@echo "Arquivo de Ambiente: $(ENV_FILE)"
+	@echo "Diretório do Projeto: $(APP_DIR)"
+	@echo "Commit Git Atual: $(GIT_COMMIT)"
+	@echo "================================================"
+
+# ============================
 # Comandos do App
 # ============================
 
 # Executar migrações no banco de dados
 .PHONY: django-migrate
-django-migrate:
+django-migrate: log-config
 	@echo "Executando migrações do banco de dados..."
 	docker exec $(APP_NAME) python manage.py migrate
 
 # Abrir o shell do Django no container
 .PHONY: launch
-launch:
+launch: log-config
 	@echo "Abrindo o shell do Django..."
 	docker exec -it $(APP_NAME) python manage.py shell
 
@@ -47,26 +64,26 @@ launch:
 
 # Compilar a imagem Docker
 .PHONY: docker-build
-docker-build:
+docker-build: log-config
 	@echo "Construindo a imagem Docker..."
 	docker build --build-arg GIT_COMMIT_HASH=$(GIT_COMMIT) -t $(DOCKER_IMAGE) .
 
 # Subir o container Docker
 .PHONY: docker-up
-docker-up:
+docker-up: log-config
 	@echo "Iniciando o container Docker..."
 	docker run -d --name $(APP_NAME) -p $(DOCKER_PORT):$(CONTAINER_PORT) --env-file $(ENV_FILE) $(DOCKER_IMAGE)
 
 # Parar e remover containers
 .PHONY: docker-down
-docker-down:
+docker-down: log-config
 	@echo "Parando e removendo containers..."
 	docker stop $(APP_NAME) || true
 	docker rm $(APP_NAME) || true
 
 # Ver os logs do container em execução
 .PHONY: docker-logs
-docker-logs:
+docker-logs: log-config
 	@echo "Exibindo logs do container..."
 	docker logs -f $(APP_NAME)
 
