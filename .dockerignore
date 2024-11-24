@@ -20,7 +20,7 @@ Thumbs.db
 *.log
 
 # Ignorar arquivos de banco de dados SQLite (se não for necessário no build)
-db.sqlite3
+# db.sqlite3
 
 # Ignorar arquivos estáticos e de mídia gerados (caso sejam coletados em runtime)
 staticfiles/
