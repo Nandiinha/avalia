@@ -3,7 +3,8 @@
 .gitignore
 
 # Ignorar arquivos de cache do Python
-__pycache__
+__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 

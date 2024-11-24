@@ -15,8 +15,8 @@ Este guia explica como configurar e rodar o projeto **Avalia Django App** usando
    ```
 
 2. **Construa e inicie os containers:**
-   ```bash
-   docker-compose up --build
+   ```bash   
+   docker-compose --env-file .env.docker up --build
    ```
 
 3. **Acesse o projeto no navegador:**  

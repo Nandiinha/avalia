@@ -8,14 +8,11 @@ services:
     ports:
       - "${DJANGO_PORT:-8000}:${DJANGO_PORT:-8000}"
     volumes:
-      - .:/app  # Sincroniza o código local com o container
-      - sqlite_data:/app  # Persistência do banco no container
+      - .:/app  # Código local -> Caminho no container
+      - ${DB_SQLITE_HOST_PATH:-./db.sqlite3}:${DB_SQLITE_PATH:-/app/db.sqlite3}  # Banco persistente
     env_file:
-      - .env.docker 
+      - .env.docker
     entrypoint: >
       sh -c "
       python manage.py migrate &&
-      python manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000}"
-
-volumes:
-  sqlite_data:
+      gunicorn --bind 0.0.0.0:${DJANGO_PORT:-8000} TCC.wsgi:application"
