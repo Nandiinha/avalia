@@ -290,7 +290,6 @@ import os
 import re
 
 import docx
-
 # OCR
 import easyocr
 import ollama  # Certifique-se de que a biblioteca está importada corretamente
