@@ -79,13 +79,13 @@ container-build: log-config fix-permissions
 .PHONY: container-up
 container-up: log-config fix-permissions
 	@echo "Subindo os containers com docker-compose..."
-	docker-compose up --build -d
+	docker compose up --build -d
 
 # Parar os containers Docker usando docker-compose
 .PHONY: container-down
 container-down: log-config
 	@echo "Parando e removendo os containers com docker-compose..."
-	docker-compose down
+	docker compose down
 
 # Ver os logs do container em execução
 .PHONY: logs
