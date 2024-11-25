@@ -105,3 +105,37 @@ const createLoader = (() => {
     hide: hideLoader,
   };
 });
+
+function togglePasswordFields() {
+  // Remove a classe que controla a visibilidade dos campos
+  const passwordDiv = document.getElementById('passworddiv');
+  const newPasswordDiv = document.getElementById('newpassworddiv');
+  const newPasswordConfirmDiv = document.getElementById('newpasswordconfirmdiv');
+  const passwordButton = document.getElementById('passwordButton')
+
+  const passwordInput = document.getElementById('password');
+  const newPasswordInput = document.getElementById('newpassword');
+  const passwordConfirmInput = document.getElementById('passwordconfirm');
+
+  // Remove a classe 'display-tags' que controla a visibilidade
+  passwordDiv.classList.toggle('display-tags');
+  newPasswordDiv.classList.toggle('display-tags');
+  newPasswordConfirmDiv.classList.toggle('display-tags');
+
+  // Adiciona a classe que controla a visibilidade
+  passwordButton.classList.add("display-tags");
+
+  // Verifica se os campos estão visíveis (a classe 'display-tags' foi removida)
+  const areFieldsVisible = !passwordDiv.classList.contains('display-tags');
+
+  // Se os campos estiverem visíveis, define os campos como 'required'
+  if (areFieldsVisible) {
+      passwordInput.required = true;
+      newPasswordInput.required = true;
+      passwordConfirmInput.required = true;
+  } else {
+      passwordInput.required = false;
+      newPasswordInput.required = false;
+      passwordConfirmInput.required = false;
+  }
+}

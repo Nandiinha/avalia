@@ -1,47 +1,66 @@
-import mimetypes
-import os
-import re
 from decimal import Decimal, InvalidOperation
-
-import docx
-import easyocr
-from django.contrib.auth import authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
+#LOGIN
+from django.http.response import HttpResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, logout, update_session_auth_hash
 from django.contrib.auth import login as loginDjango
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from PyPDF2 import PdfReader
 
-from .models import Activity, Answer, Student, Turma
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.contrib import messages
+
+from .models import Turma, Activity, Student, Answer
 
 
-# VIEWS DO LOGIN
+#VIEWS DO LOGIN
 def register(request):
     if request.method == "GET":
-        return render(request, "login.html")
+        context = {'body_class': 'register-js'}
+        return render(request, 'login.html', context)
     else:
-        username = request.POST.get("usernameRegister")
-        email = request.POST.get("emailRegister")
-        password = request.POST.get("passwordRegister")
-
+        username = request.POST.get('usernameRegister')
+        email = request.POST.get('emailRegister')
+        password = request.POST.get('passwordRegister')
+        confirm_password = request.POST.get('confirmPasswordRegister')
+        errors = {}
+        
         if User.objects.filter(email=email).exists():
-            return HttpResponse("Já existe um usuário com esse email")
+           messages.error(request, 'Este email já está em uso.')
+           errors['emailRegister'] = 'Este email já está em uso.'
 
-        user = User.objects.create_user(
-            username=username, email=email, password=password
-        )
+        try:
+            validate_password(password)  # Valida senha usando regras padrão do Django
+        except ValidationError as e:
+            for error in e.messages:
+                messages.error(request, error)
+            return redirect('login')    
+
+        if password != confirm_password:
+            errors['passwordRegister'] = 'As senhas não coincidem.'   
+   
+        if errors:
+            return render(request, 'login.html', {
+                'errors': errors,
+                'usernameRegister': username,
+                'emailRegister': email,
+            })    
+        
+        user = User.objects.create_user(username=username, email=email, password=password)
         user.save()
-
-        return HttpResponse("Usuário criado com sucesso!")
-
+        messages.success(request, 'Usuário criado com sucesso!')
+        
+        return render(request, 'login.html')
 
 def login(request):
     if request.method == "GET":
-        return render(request, "login.html")
+        context = {'body_class': 'login-js'}
+        return render(request, 'login.html', context)
     else:
-        email = request.POST.get("emailLogin")
-        password = request.POST.get("passwordLogin")
+        email = request.POST.get('emailLogin')
+        password = request.POST.get('passwordLogin')
 
         user = authenticate(request, username=email, password=password)
 
@@ -49,253 +68,362 @@ def login(request):
             loginDjango(request, user)
             return redirect(home)
         else:
-            return HttpResponse("email ou senha inválidos")
+            messages.error(request, 'Email ou senha inválidos!')
+            return render(request, 'login.html')
+        
+def logout(request):
+    logout(request) 
+    return redirect('login')    
 
+# USUÁRIO
+@login_required(login_url='/correction/login')
+def user_settings(request):
 
-@login_required(login_url="/correction/login")
-def plataform(request):
-    return HttpResponse("Plataforma")
+    return render(request, "user_settings.html", {"user": request.user})  
 
+def update_user(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        newpassword = request.POST.get("newpassword")
+        passwordconfirm = request.POST.get("passwordconfirm")
+
+        user = request.user
+        
+        # Verifica se já existe um usuário com esse e-mail
+        if User.objects.filter(email=email).exclude(id=user.id).exists():
+            messages.error(request, "Este email já está em uso por outro usuário.")
+            return redirect("user_settings")
+        
+        # Verifica se a senha atual está correta
+        if password and not user.check_password(password):
+            messages.error(request, "A senha atual está incorreta!")
+            return redirect("user_settings")
+        
+        # Verifica se as novas senhas coincidem
+        if newpassword and newpassword != passwordconfirm:
+            messages.error(request, "As senhas não coincidem!")
+            return redirect("user_settings")
+        
+        # Atualiza a senha, se fornecida
+        if newpassword:
+            user.set_password(newpassword)
+
+        user.username = username
+        user.email = email
+        user.save()
+
+        # Mantém o usuário logado
+        if newpassword:
+            update_session_auth_hash(request, user)
+
+        messages.success(request, "Usuário atualizado com sucesso!")
+        return redirect("user_settings")
+
+@login_required(login_url='/correction/login')
+def delete_user(request):
+    try:
+        request.user.delete()  
+    except request.user.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return redirect('login')     
 
 # VIEWS DA PLATAFORMA
-def home(request):
-    turma = Turma.objects.all()
-    return render(request, "index.html", {"turma": turma})
+@login_required(login_url='/correction/login')
+def home (request):
+    turmas = Turma.objects.filter(user=request.user)
+    return render(request, "index.html", {"turma": turmas})
 
+@login_required(login_url='/correction/login') 
+def cursos (request):
+    turmas = Turma.objects.filter(user=request.user)
+    return render(request, "cursos.html", {"turma": turmas})
 
-def cursos(request):
-    turma = Turma.objects.all()
-    return render(request, "cursos.html", {"turma": turma})
-
-
-def salvar(request):
+@login_required(login_url='/correction/login') 
+def salvar (request):
     name = request.POST.get("name")
     section = request.POST.get("section")
-    Turma.objects.create(name=name, section=section)
-    turma = Turma.objects.all()
+    Turma.objects.create(name=name, section=section, user=request.user)
     return redirect(home)
 
-
+@login_required(login_url='/correction/login') 
 def details(request, id):
-    turma = Turma.objects.get(id=id)
+    try:
+        turma = Turma.objects.get(id=id, user=request.user)
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+
+    return render(request, 'details.html', {'turma': turma})
+
+@login_required(login_url='/correction/login') 
+def update (request, id):
+    try:
+        name = request.POST.get("name")
+        section = request.POST.get("section")
+        description = request.POST.get("description")
+        turma = Turma.objects.get(id=id, user=request.user)
+        turma.name = name
+        turma.section = section
+        turma.description = description
+        turma.save() 
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
     return render(request, "details.html", {"turma": turma})
 
+@login_required(login_url='/correction/login') 
+def delete (request, id):
+    try:
+        turma = Turma.objects.get(id=id, user=request.user)
+        turma.delete()  
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return redirect(home)   
 
-def update(request, id):
-    name = request.POST.get("name")
-    section = request.POST.get("section")
-    description = request.POST.get("description")
-    turma = Turma.objects.get(id=id)
-    turma.name = name
-    turma.section = section
-    turma.description = description
-    turma.save()
-    return render(request, "details.html", {"turma": turma})
-
-
-def delete(request, id):
-    turma = Turma.objects.get(id=id)
-    turma.delete()
-    return redirect(home)
-
-
-# ATIVIDADE
+#ATIVIDADE
+@login_required(login_url='/correction/login') 
 def activities(request, id):
-    id_class = get_object_or_404(Turma, id=id)
-    activities = Activity.objects.filter(id_class=id_class)
-    return render(
-        request, "activities.html", {"activities": activities, "turma": id_class}
-    )
+    try:
+        id_class = Turma.objects.get(id=id, user=request.user)
+        activities = Activity.objects.filter(id_class=id_class)
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return render(request, 'activities.html', {'activities': activities, 'turma': id_class})
 
-
+@login_required(login_url='/correction/login') 
 def create_activity(request, id):
     id_class = get_object_or_404(Turma, id=id)
-    name = request.POST.get("name")
-    description = request.POST.get("description")
-    question = request.POST.get("question")
-
-    activity = Activity.objects.create(
-        name=name, id_class=id_class, description=description, question=question
-    )
+    name = request.POST.get('name')
+    description = request.POST.get('description')
+    question = request.POST.get('question')
+        
+    activity = Activity.objects.create(name=name,id_class=id_class,description=description, question=question, user=request.user)
     activity.save()
-    return redirect("activities", id=id_class.id)
+    return redirect('activities', id=id_class.id)
 
+@login_required(login_url='/correction/login') 
+def select_activity (request, id):
+    try:
+        activity = Activity.objects.get(id=id, user=request.user)
+        students = Student.objects.filter(id_class=activity.id_class)
+        answers = Answer.objects.filter(id_activity=id)
+    except Activity.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return render(request, 'activityDetails.html', {
+        'students': students,
+        'activity': activity,
+        "answers": answers
+    })
 
-def select_activity(request, id):
-    activity = get_object_or_404(Activity, id=id)
-    students = Student.objects.filter(id_class=activity.id_class)
-    answers = Answer.objects.filter(id_activity=id)
-    return render(
-        request,
-        "activityDetails.html",
-        {"students": students, "activity": activity, "answers": answers},
-    )
+@login_required(login_url='/correction/login') 
+def update_activity (request, id):
+    try:
+        activity = Activity.objects.get(id=id, user=request.user)
 
+        if request.method == 'POST':
+            name = request.POST.get("name")
+            description = request.POST.get("description")
+            question = request.POST.get("question")
+            activity.name = name
+            activity.description = description
+            activity.question = question
+            activity.save()
+    except Activity.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+   
+    return redirect('select_activity', id=id)
 
-def update_activity(request, id):
-    activity = Activity.objects.get(id=id)
-
-    if request.method == "POST":
-        name = request.POST.get("name")
-        description = request.POST.get("description")
-        question = request.POST.get("question")
-        activity.name = name
-        activity.description = description
-        activity.question = question
-        activity.save()
-    return redirect("select_activity", id=id)
-
-
+@login_required(login_url='/correction/login') 
 def delete_activity(request, id):
-    activity = Activity.objects.get(id=id)
-    id_class = activity.id_class.id
-    if request.method == "POST":
-        activity.delete()
-    return redirect("activities", id=id_class)
+    try:
+        activity = Activity.objects.get(id=id, user=request.user)
+        id_class = activity.id_class.id
+        if request.method == 'POST':
+            activity.delete()
+    except Activity.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+      
+    return redirect('activities', id=id_class)
 
-
-# Respostas
+#Respostas
+@login_required(login_url='/correction/login') 
 def answers(request, id):
-    id_activity = get_object_or_404(Activity, id=id)
-    answers = Answer.objects.filter(id_activity=id_activity)
-    return render(
-        request, "activityDetails.html", {"answers": answers, "activity": id_activity}
-    )
+    try:
+        id_activity = Activity.objects.get(id=id, user=request.user)
+        answers = Answer.objects.filter(id_activity=id_activity)
+    except Activity.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return render(request, 'activityDetails.html', {'answers': answers, 'activity': id_activity})
 
-
+@login_required(login_url='/correction/login') 
 def create_answer(request, id):
-    id_activity = get_object_or_404(Activity, id=id)
-    id_student = int(request.POST.get("id_student"))
-    student = get_object_or_404(
-        Student, id=id_student
-    )  # Substitua pela busca do modelo Student
+    try:
+        id_activity = Activity.objects.get(id=id, user=request.user)
+    except Activity.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
 
-    studentAnswer = request.FILES.get("studentAnswer")
-    extract_value = request.POST.get("extract_value")
-    score_raw = request.POST.get("score")
-    feedback = request.POST.get("feedback")
-
+    id_student = request.POST.get('id_student')
+    student = get_object_or_404(Student, id=id_student)
+    studentAnswer = request.FILES.get('studentAnswer')
+    extract_value = request.POST.get('extract_value')
+    score_raw = (request.POST.get('score'))
+    feedback = request.POST.get('feedback')
+    answer_based = request.POST.get('answer_based')
+    teacherAnswer = request.POST.get('teacherAnswer')
+        
     # Tratamento do campo score
     score = None
     if score_raw:  # Verifica se o valor foi enviado
         try:
             # Substitui vírgula por ponto, se necessário, e converte para Decimal
-            score = Decimal(score_raw.replace(",", "."))
+            score = Decimal(score_raw.replace(',', '.'))
         except (InvalidOperation, AttributeError):
             return HttpResponse(
                 "Valor inválido para o campo score. Certifique-se de usar um número válido.",
-                status=400,
+                status=400
             )
 
-    answer = Answer.objects.create(
-        id_activity=id_activity,
-        id_student=student,
-        studentAnswer=studentAnswer,
-        score=score,
-        feedback=feedback,
-        extract_value=extract_value,
-    )
+    answer = Answer.objects.create(id_activity=id_activity,id_student=student,studentAnswer=studentAnswer,score=score,feedback=feedback, extract_value = extract_value, user=request.user, answer_based= answer_based, teacherAnswer=teacherAnswer)
     answer.save()
-    return redirect("select_activity", id=id)
+    return redirect('select_activity', id=id)
 
+@login_required(login_url='/correction/login') 
+def select_answer (request, id):
+    try:
+        correction = Answer.objects.get(id=id, user=request.user)
+        id_activity = correction.id_activity
+        students = Student.objects.filter(id_class=id_activity.id_class)
+    except Answer.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return render(request, 'correction.html',{"answer": correction, "students": students})
 
-def select_answer(request, id):
-    correction = get_object_or_404(Answer, id=id)
-    id_activity = correction.id_activity
-    students = Student.objects.filter(id_class=id_activity.id_class)
-    return render(
-        request, "correction.html", {"answer": correction, "students": students}
-    )
+@login_required(login_url='/correction/login') 
+def update_correction (request, id):
+    try:
+        correction = Answer.objects.get(id=id, user=request.user)
+        id_activity = correction.id_activity
+        if request.method == 'POST':
+            id_student = request.POST.get('id_student')
+            score = request.POST.get('score')
+            feedback = request.POST.get('feedback')
+            correction.id_studant = id_student
+            correction.score = score
+            correction.feedback = feedback
+            correction.save()
+    except Answer.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+        
+    return redirect('select_activity', id=id_activity.id)
 
+@login_required(login_url='/correction/login') 
+def delete_correction (request, id):
+    try:
+        correction = Answer.objects.get(id=id, user=request.user)
+        id_activity = correction.id_activity.id
+        if request.method == 'POST':
+            correction.delete()  
+    except Answer.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
 
-def update_correction(request, id):
-    correction = get_object_or_404(Answer, id=id)
-    id_activity = correction.id_activity
-    # students = Student.objects.filter(id_class=id_activity.id_class)
+    return redirect('select_activity', id=id_activity)
 
-    if request.method == "POST":
-        id_student = request.POST.get("id_student")
-        score = request.POST.get("score")
-        feedback = request.POST.get("feedback")
-        correction.id_studant = id_student
-        correction.score = score
-        correction.feedback = feedback
-        correction.save()
-
-    return redirect("select_activity", id=id_activity.id)
-
-
-def delete_correction(request, id):
-    correction = get_object_or_404(Answer, id=id)
-    id_activity = correction.id_activity.id
-    if request.method == "POST":
-        correction.delete()
-    return redirect("select_activity", id=id_activity)
-
-
-# Students
+#Students
+@login_required(login_url='/correction/login') 
 def students(request, id):
-    id_class = Turma.objects.get(id=id)
-    students = Student.objects.filter(id_class=id_class)
-    return render(request, "students.html", {"students": students, "turma": id_class})
+    try:
+        id_class = Turma.objects.get(id=id,user=request.user)
+        students = Student.objects.filter(id_class=id_class)
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
 
+    return render(request, 'students.html', {"students": students, "turma": id_class})
 
+@login_required(login_url='/correction/login') 
 def create_student(request, id):
-    id_class = get_object_or_404(Turma, id=id)
-    name = request.POST.get("name")
-    email = request.POST.get("email")
-
-    student = Student.objects.create(name=name, id_class=id_class, email=email)
-    student.save()
-    return redirect("students", id=id_class.id)
-
-
-def select_student(request, id):
-    student = get_object_or_404(Student, id=id)
-    return render(request, "studentDetails.html", {"student": student})
-
-
-def update_student(request, id):
-    student = get_object_or_404(Student, id=id)
-    if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        id_class = student.id_class.id
-        student.name = name
-        student.email = email
+    try:
+        id_class = Turma.objects.get(id=id, user=request.user)
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+    
+        student = Student.objects.create(name=name,id_class=id_class,email=email,user=request.user)
         student.save()
-        return redirect("students", id=id_class)
-    else:
-        return render(request, "studentDetails.html", {"student": student})
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return redirect('students', id=id_class.id)
 
-
-def studentDetails(request, id):
-    student = Student.objects.get(id=id)
+@login_required(login_url='/correction/login') 
+def select_student (request, id):
+    try:
+       student = Student.objects.get(id=id, user=request.user)
+    except Student.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
     return render(request, "studentDetails.html", {"student": student})
 
+@login_required(login_url='/correction/login') 
+def update_student(request, id):
+    try:
+        student = Student.objects.get(id=id,user=request.user)
+        if request.method == 'POST':
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            id_class = student.id_class.id
+            student.name = name
+            student.email = email
+            student.save()
+            return redirect('students', id=id_class)
+        else:
+            return render(request, 'studentDetails.html', {'student': student})    
+    except Student.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
 
+@login_required(login_url='/correction/login') 
 def delete_student(request, id):
-    if request.method == "POST":
-        student = get_object_or_404(Student, id=id)
-        id_class = student.id_class.id
-        student.delete()
-        # Redireciona para a URL de lista de estudantes, passando o ID da turma
-        return redirect("students", id=id_class)
-    # Caso não seja um POST, pode retornar um erro ou redirecionar para uma página de erro
-    return redirect("students", id=id_class)
+    try:
+        student = Student.objects.get(id=id,user=request.user)
+        if request.method == 'POST':
+            id_class = student.id_class.id
+            student.delete()
+    except Student.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return redirect('students', id=id_class)
 
-
-import mimetypes
+#OCR
+import easyocr
 import os
+import ollama  # Certifique-se de que a biblioteca está importada corretamente
 import re
 
-import docx
-# OCR
-import easyocr
-import ollama  # Certifique-se de que a biblioteca está importada corretamente
-from django.http import HttpResponse, JsonResponse
+import mimetypes
 from PyPDF2 import PdfReader
-
+import docx
 
 def extract_text_from_pdf(pdf_path):
     """
@@ -305,26 +433,21 @@ def extract_text_from_pdf(pdf_path):
         reader = PdfReader(pdf_path)
         text = ""
         for page in reader.pages:
-            text += (
-                page.extract_text() or ""
-            )  # Combina textos extraídos de todas as páginas
+            text += page.extract_text() or ""  # Combina textos extraídos de todas as páginas
         return text.strip()
     except Exception as e:
         print(f"Erro ao extrair texto do PDF: {e}")
         return ""
 
-
 # Configuração de tamanho máximo de arquivo permitido (em bytes, aqui 50MB)
 MAX_FILE_SIZE = 50 * 1024 * 1024
-
 
 # Funções de extração de texto por tipo de arquivo
 def extract_text_from_image(file_path):
     """Extrai texto de uma imagem usando EasyOCR."""
-    reader = easyocr.Reader(["pt", "en"])
+    reader = easyocr.Reader(['pt', 'en'])
     result = reader.readtext(file_path, detail=0)
-    return " ".join(result)
-
+    return ' '.join(result)
 
 def extract_text_from_pdf(file_path):
     """Extrai texto de um arquivo PDF usando PyPDF2."""
@@ -334,28 +457,25 @@ def extract_text_from_pdf(file_path):
         for page in reader.pages:
             text += page.extract_text() or ""
         # Remove quebras de linha desnecessárias
-        return " ".join(text.split())
+        return ' '.join(text.split())
     except Exception as e:
         raise ValueError(f"Erro ao processar o PDF: {e}")
-
 
 def extract_text_from_txt(file_path):
     """Extrai texto de um arquivo TXT."""
     try:
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             return file.read().strip()
     except Exception as e:
         raise ValueError(f"Erro ao processar o arquivo TXT: {e}")
-
 
 def extract_text_from_word(file_path):
     """Extrai texto de um arquivo Word (docx)."""
     try:
         doc = docx.Document(file_path)
-        return " ".join([paragraph.text for paragraph in doc.paragraphs])
+        return ' '.join([paragraph.text for paragraph in doc.paragraphs])
     except Exception as e:
         raise ValueError(f"Erro ao processar o arquivo Word: {e}")
-
 
 def validate_file(uploaded_file):
     """
@@ -368,56 +488,47 @@ def validate_file(uploaded_file):
     # Verifica o tipo MIME
     mime_type, _ = mimetypes.guess_type(uploaded_file.name)
     valid_mime_types = [
-        "image/",  # Imagens
-        "application/pdf",  # PDF
-        "text/plain",  # TXT
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # Word (docx)
+        'image/',             # Imagens
+        'application/pdf',    # PDF
+        'text/plain',         # TXT
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  # Word (docx)
     ]
-    if not mime_type or not any(
-        mime_type.startswith(valid) for valid in valid_mime_types
-    ):
-        raise ValueError(
-            f"Tipo de arquivo não suportado: {mime_type or 'desconhecido'}."
-        )
-
+    if not mime_type or not any(mime_type.startswith(valid) for valid in valid_mime_types):
+        raise ValueError(f"Tipo de arquivo não suportado: {mime_type or 'desconhecido'}.")
 
 def extract_text_from_file(file_path, mime_type):
     """
     Identifica o tipo do arquivo e delega a extração de texto para a função apropriada.
     """
-    if mime_type.startswith("image/"):
+    if mime_type.startswith('image/'):
         return extract_text_from_image(file_path)
-    elif mime_type == "application/pdf":
+    elif mime_type == 'application/pdf':
         return extract_text_from_pdf(file_path)
-    elif mime_type == "text/plain":
+    elif mime_type == 'text/plain':
         return extract_text_from_txt(file_path)
-    elif (
-        mime_type
-        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ):
+    elif mime_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         return extract_text_from_word(file_path)
     else:
         raise ValueError(f"Tipo de arquivo não suportado: {mime_type}")
-
 
 def extract_text(request):
     """
     Extrai texto de arquivos enviados pelo usuário.
     Suporta imagens, PDFs, arquivos TXT e Word.
     """
-    if request.method != "POST" or not request.FILES.get("studentAnswer"):
+    if request.method != 'POST' or not request.FILES.get('studentAnswer'):
         return HttpResponse("Nenhum arquivo fornecido.", status=400)
 
-    uploaded_file = request.FILES["studentAnswer"]
+    uploaded_file = request.FILES['studentAnswer']
 
     try:
         # Validação do arquivo
         validate_file(uploaded_file)
 
         # Salva o arquivo temporariamente
-        file_path = f"media/uploads/{uploaded_file.name}"
+        file_path = f'media/uploads/{uploaded_file.name}'
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "wb+") as destination:
+        with open(file_path, 'wb+') as destination:
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)
 
@@ -429,16 +540,13 @@ def extract_text(request):
         os.remove(file_path)
 
         # Obtém informações adicionais da requisição
-        question = request.POST.get("question", "").strip()
-        # student_name = request.POST.get('studentName', '').strip()
+        question = request.POST.get('question', '')
+        teacherAnswer = request.POST.get('teacherAnswer', '')
 
         # Chama a função de correção
-        score, feedback = correction(question, extracted_text)
+        score, feedback = correction(question, extracted_text, teacherAnswer)
 
-        return JsonResponse(
-            {"score": score, "feedback": feedback, "extract_value": extracted_text},
-            status=200,
-        )
+        return JsonResponse({"score": score, "feedback": feedback, "extract_value": extracted_text}, status=200)
 
     except ValueError as e:
         return HttpResponse(str(e), status=400)
@@ -446,19 +554,71 @@ def extract_text(request):
     except Exception as e:
         return HttpResponse(f"Erro interno do servidor: {e}", status=500)
 
+def correction(question, answer, teacherAnswer):
 
-def correction(question, answer):
-    content = f"Com base na pergunta: {question}. Verifique se a resposta a seguir está correta: {answer}. É importante que a resposta se adeque ao que está sendo perguntado, se fungir do tema da pergunta retorne uma nota baixa mesmo que a resposta esteja correta em um outro contexto. Responda dando um feedback e uma nota de 0 a 10. Desconsidere erros gramaticais para a realização da correção."
+    print('Chegou na função correction')
 
+    if (len(teacherAnswer) > 0):
+        content = """
+                    Você será um corretor de atividades. Sua tarefa é avaliar a resposta do aluno com base no enunciado da atividade, verificando se a resposta está correta, coerente e dentro do contexto do enunciado. 
+
+                    Siga estas diretrizes:  
+                    1. Leia o enunciado da atividade e a resposta fornecida pelo aluno.  
+                    2. Verifique se a resposta do aluno faz sentido com o enunciado e se está correta.  
+                    3. Caso a resposta esteja fora do contexto ou não faça sentido com o enunciado, desconsidere a resposta e atribua nota zero.  
+                    4. Atribua uma nota de 0 a 10 baseada na correção, clareza e completude da resposta.  
+                    5. Forneça um feedback explicando o motivo da nota, destacando acertos e apontando os erros ou lacunas na resposta.  
+
+                    Formato de entrada:  
+                    - Enunciado da atividade: {question}
+                    - Resposta do aluno: {answer} 
+
+                    Formato de saída:  
+                    - Nota: [0-10]  
+                    - Feedback: [Comentário explicativo sobre a nota]
+
+                    Certifique-se de manter a avaliação justa e bem fundamentada.  
+                """
+        print('dentro do if')        
+    else:
+        content = """
+                    Você será um corretor de atividades com base em uma resposta padrão fornecida pelo professor. Sua tarefa é comparar a resposta do aluno com a resposta base e avaliar sua precisão, clareza e alinhamento.
+
+                    Siga estas diretrizes:
+
+                    Leia a resposta base fornecida pelo professor e a resposta do aluno.
+                    Verifique se a resposta do aluno está alinhada com a resposta base.
+                    Se houver inconsistências, erros ou falta de alinhamento com a resposta base, destaque-os.
+                    Caso a resposta do aluno esteja fora do contexto da resposta base, desconsidere-a e atribua nota zero.
+                    A resposta base fornecida pelo professor deve ser considerada como verdade e referência principal para a correção.
+                    Atribua uma nota de 0 a 10 baseada na adequação da resposta do aluno à resposta base.
+                    Forneça um feedback explicando o motivo da nota, destacando acertos e apontando os erros ou lacunas na resposta.
+                    Formato de entrada:
+
+                    Resposta base do professor: {teacherAnswer}
+                    Resposta do aluno: {answer}
+                    
+                    Formato de saída:
+                    Nota: [0-10]
+                    Feedback: [Comentário explicativo sobre a nota]
+                    Certifique-se de seguir rigorosamente a resposta base como referência, sem incluir interpretações externas.
+                """
+        print('dentro do else')
+
+    print('fora do if-else')    
+    
     stream = ollama.chat(
-        model="mistral",
-        messages=[{"role": "user", "content": content}],
+        model='mistral',
+        messages=[{
+                    'role': 'user', 
+                    'content': content
+                }],
         stream=True,
     )
 
     response = ""
     for chunk in stream:
-        response += chunk["message"]["content"]
+        response += chunk['message']['content']
 
     # Use regex para extrair o número da resposta, se houver
     match = re.search(r"\d+(\.\d+)?", response)  # Procura um número inteiro ou decimal
@@ -466,10 +626,7 @@ def correction(question, answer):
         try:
             score = float(match.group())  # Converte o número extraído para float
         except ValueError:
-            print(
-                "Erro ao converter a resposta para um número. Resposta recebida:",
-                response,
-            )
+            print("Erro ao converter a resposta para um número. Resposta recebida:", response)
             score = None
     else:
         print("Nenhum número encontrado na resposta. Resposta recebida:", response)

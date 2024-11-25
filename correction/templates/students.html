@@ -19,7 +19,7 @@
         
         <ul class="mt-3">
             {% for student in students %}
-                <a href= "{% url 'studentDetails' student.id %}" class="row-itens">{{ student.name }}</a>
+                <a href= "{% url 'select_student' student.id %}" class="row-itens">{{ student.name }}</a>
             {% empty %}
                 <li class="row-itens">Nenhum aluno encontrado.</li>
             {% endfor %}

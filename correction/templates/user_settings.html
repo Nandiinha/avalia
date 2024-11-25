@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+</head>
+<body>
+    <!--Referência tela de menu-->
+    {% include 'menu.html' %}
+
+    <div class="center-container">
+        <div class="form-container">
+            <div class="form-top">
+                <h5 class="modal-title">Configurações</h5>
+            </div>
+            <div id="userModalErrorPlaceHolder"></div>
+            <form id="userForm" method="POST" enctype="multipart/form-data" action="{% url 'update_user' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div id="usernamediv" class="form-group">
+                        <label for="username">Nome</label>
+                        <input class="form-control" id="username" name="username" rows="2" placeholder="" value="{{ user.username }}" required></input>
+                    </div>
+                    <div id="emaildiv" class="form-group">
+                        <label for="email">Email</label>
+                        <input class="form-control" type="email" id="email" name="email" rows="3" placeholder="" value="{{ user.email }}" required></input>
+                    </div>
+                    <button class="btn btn-primary" type="button" onclick='togglePasswordFields()' id="passwordButton">Alterar senha</button>
+                    <div id="passworddiv" class="form-group display-tags">
+                        <label for="password">Senha atual</label>
+                        <input class="form-control" id="password" name="password" rows="3" placeholder="" type="password"></input>
+                    </div>
+                    <div id="newpassworddiv" class="form-group display-tags">
+                        <label for="newpassword">Nova senha</label>
+                        <input class="form-control" id="newpassword" name="newpassword" rows="3" placeholder="" type="password"></input>
+                    </div>
+                    <div id="newpasswordconfirmdiv" class="form-group display-tags">
+                        <label for="passwordconfirm">Confirmar senha</label>
+                        <input class="form-control" id="passwordconfirm" name="passwordconfirm" rows="3" placeholder="" type="password"></input>
+                    </div>
+                </div>    
+                <div class="form-group text-right">
+                    <button type="submit" formaction="{% url 'delete_user' %}" class="btn btn-delete ml-2">Deletar</button>
+                    <button type="submit" class="btn btn-primary" >Salvar</button>
+                </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script>
+        // Verifica se há mensagens do Django
+        document.addEventListener("DOMContentLoaded", function() {
+            {% if messages %}
+                {% for message in messages %}
+                    showMessage({
+                        message: "{{ message }}",
+                        type: "alert",
+                        severity: "{{ message.tags|default_if_none:'error' }}",
+                        containerId: "userModalErrorPlaceHolder"
+                    });
+                {% endfor %}
+            {% endif %}
+        });
+    </script>    
+</body>
+</html>

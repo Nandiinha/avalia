@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     {% load static %}
-    
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <script src="https://kit.fontawesome.com/f0a14fd364.js" crossorigin="anonymous"></script>
 </head>
-<body class="login-js">
-    {% include 'popup.html' %}
+<body class="{{ body_class|default:'login-js' }}">
     <div class="container">
         <div class="content first-content">
+            <div id="loginModalErrorPlaceHolder"></div>
             <div class="first-column">
                 <h2 class="title">Bem-vindo!</h2>
                 <p class="first-description">Entre com suas credenciais</p>
@@ -23,15 +22,15 @@
                 <form action="{% url 'login' %}" method="POST" class="form"> {% csrf_token %}
                     <label class="label-input" for="">
                         <i class="fa-solid fa-envelope icon-modify"></i>
-                        <input type="email" placeholder="Email" name="emailLogin">
+                        <input type="email" placeholder="Email" name="emailLogin" required>
                     </label>
                     <label class="label-input" for="">
                         <i class="fa-solid fa-lock icon-modify"></i>
-                        <input type="password" placeholder="Senha" name="passwordLogin">
+                        <input type="password" placeholder="Senha" name="passwordLogin" required>
                     </label>
                     <button class="btn primary-button">Entrar</button>
                 </form>
-                <a href="" class="link">Esqueci minha senha</a>
+                <a href="{% url 'password_reset' %}" class="link">Esqueci minha senha</a>
             </div>
         </div> <!-- Fechamento da primeira content -->
 
@@ -39,32 +38,78 @@
             <div class="first-column">
                 <h2 class="title">Criar conta</h2>
                 <p class="first-description">Cadastre-se na plataforma!</p>
+                <ul class="password-recomendations">
+                    <li>Sua senha não pode ser parecida com suas informações.</li>
+                    <li>Sua senha precisa conter pelo menos 8 caracteres.</li>
+                    <li>Sua senha não pode ser uma senha comumente utilizada.</li>
+                    <li>Sua senha não pode ser inteiramente numérica.</li>
+                </ul>    
                 <p class="second-description">Já tem uma conta?</p>
                 <button id="redirect-login"class="btn secondary-button">Entrar</button>
             </div>    
             <div class="second-column">
-                <form action="{% url 'register' %}" method="POST" class="form"> {% csrf_token %}
-                    <label class="label-input" for="">
+                <form action="{% url 'register' %}" method="POST" class="form">
+                    {% csrf_token %}
+                    <label class="label-input" for="usernameRegister">
                         <i class="fa-solid fa-user icon-modify"></i>
-                    <input type="text" placeholder="Nome" name="usernameRegister">
+                        <input type="text" placeholder="Nome" name="usernameRegister" 
+                               value="{{ usernameRegister|default_if_none:'' }}" required
+                               title="{% if errors.usernameRegister %}{{ errors.usernameRegister }}{% endif %}" 
+                               class="{% if form.errors.usernameRegister %}error{% endif %}">
                     </label>
-                    <label class="label-input" for="">
+                
+                    <label class="label-input" for="emailRegister">
                         <i class="fa-solid fa-envelope icon-modify"></i>
-                    <input type="email" placeholder="Email" name="emailRegister">
+                        <input type="email" placeholder="Email" name="emailRegister" 
+                               value="{{ emailRegister|default_if_none:'' }}" required
+                               title="{% if errors.emailRegister %}{{ errors.emailRegister }}{% endif %}" 
+                               class="{% if form.errors.emailRegister %}error{% endif %}">
                     </label>
-                    <label class="label-input" for="">
+
+                    {% if errors.emailRegister %}
+                        <small class="error-message">*{{ errors.emailRegister }}</small>
+                    {% endif %}
+                
+                    <label class="label-input" for="passwordRegister">
                         <i class="fa-solid fa-lock icon-modify"></i>
-                    <input type="password" placeholder="Senha" name="passwordRegister">
+                        <input type="password" placeholder="Senha" name="passwordRegister" 
+                               title="{% if errors.passwordRegister %}{{ errors.passwordRegister }}{% endif %}"  required
+                               class="{% if form.errors.passwordRegister %}error{% endif %}">
                     </label>
-                    <label class="label-input" for="">
+
+                    <label class="label-input" for="confirmPasswordRegister">
                         <i class="fa-solid fa-lock icon-modify"></i>
-                    <input type="password" placeholder="Confirmar senha" name="confirmPasswordRegister">
+                        <input type="password" placeholder="Senha" name="confirmPasswordRegister" 
+                               title="{% if errors.confirmPasswordRegister %}{{ errors.confirmPasswordRegister }}{% endif %}"  required 
+                               class="{% if form.errors.confirmPasswordRegister %}error{% endif %}">
                     </label>
+
+                    {% if errors.passwordRegister %}
+                        <small class="error-message">*{{ errors.passwordRegister }}</small>
+                    {% endif %}
+                
                     <button type="submit" class="btn primary-button">Criar conta</button>
-                </form>
+                </form>                
             </div>
         </div> <!-- Fechamento da segunda content -->
     </div>  
-    <script src="{% static 'js/scripts.js' %}"></script>          
+    <script src="{% static 'js/scripts.js' %}"></script> 
+    <script src="{% static 'js/utils.js' %}"></script>
+
+    <!--- Verifica se há mensagens do Django  -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            {% if messages %}
+                {% for message in messages %}
+                    showMessage({
+                        message: "{{ message }}",
+                        type: "toast",
+                        severity: "{{ message.tags|default_if_none:'error' }}",
+                        containerId: "loginModalErrorPlaceHolder"
+                    });
+                {% endfor %}
+            {% endif %}
+        });
+    </script>   
 </body>
 </html>

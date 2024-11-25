@@ -21,13 +21,18 @@
                 </div>
                 <h3>{{ turma.name }}</h3>
                 <span>{{ turma.section }}</span>
-               <!-- <a href="{% url 'activities' turma.id %}">-->
                 <a href="{% url 'activities' turma.id %}" class="btn btn-primary">></a>
             </section>
+        {% empty %}
+            <div class="container-empty">
+                <h1>Você ainda não tem nenhuma turma</h1>
+                <p>Para criar clique no botão</p>
+                <a href="menu.html" data-toggle="modal" data-target="#novaTurmaModal" class="btn">Criar turma</a>
+            </div>        
         {% endfor %}
     </main>
-    <div class="toggle" onclick="toggleMenu();"></div>
 
+    <div class="toggle" onclick="toggleMenu();"></div>
     <script src="{% static 'js/utils.js' %}"></script>
 </body>
 </html>

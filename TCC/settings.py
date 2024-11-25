@@ -1,7 +1,6 @@
 import logging
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente do arquivo .env
@@ -21,17 +20,13 @@ ENVIRONMENT = os.getenv("DJANGO_ENV", "development")
 IS_DEVELOPMENT = ENVIRONMENT == "development"
 
 # Configurar a porta do Django
-DJANGO_PORT = os.getenv("DJANGO_PORT", "8000")
+DJANGO_PORT = int(os.getenv("DJANGO_PORT", 8000))
 
 # Configuração do DEBUG
-DEBUG = os.getenv("DEBUG", "False") == "True" if not IS_DEVELOPMENT else True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true" if not IS_DEVELOPMENT else True
 
 # Configurar ALLOWED_HOSTS com base no ambiente
-ALLOWED_HOSTS = (
-    os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-    if not IS_DEVELOPMENT
-    else ["127.0.0.1", "localhost"]
-)
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 # Segurança
 SECRET_KEY = os.getenv(
@@ -131,8 +126,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "pt-br"
+TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
 
@@ -163,6 +158,18 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "CSRF_TRUSTED_ORIGINS",
     "http://127.0.0.1,http://localhost" if IS_DEVELOPMENT else "",
 ).split(",")
+
+# Configurações de Email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "False").lower() == "true"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Logout redirect
+LOGOUT_REDIRECT_URL = "/correction/login/"
 
 # Logging adicional
 logger.info(f"App Log - Servidor Django configurado para rodar na porta {DJANGO_PORT}")

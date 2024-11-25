@@ -21,6 +21,7 @@ async function startCorrection() {
     try {
       const form = document.getElementById("answerForm");
       const fileInput = document.getElementById("studentAnswer");
+      const teacherAnswer = document.getElementById('teacherAnswer');
   
       if (!fileInput.value) {
         showMessage({
@@ -28,7 +29,17 @@ async function startCorrection() {
           type: 'toast',
           severity: 'error',
           containerId: 'correctionModal_AlertPlaceHolder',
-        }); // Exibe como Alert
+        });
+        return;
+      }
+
+      if (teacherAnswer.length > 1000) {
+        showMessage({
+          message: 'A reposta do professor deve ter no máximo 1000 caracteres.',
+          type: 'toast',
+          severity: 'error',
+          containerId: 'correctionModal_AlertPlaceHolder',
+        });
         return;
       }
   
@@ -71,7 +82,7 @@ async function startCorrection() {
         type: 'toast',
         severity: 'error',
         containerId: 'correctionModal_AlertPlaceHolder',
-      }); // Exibe como Toast
+      });
     } finally {
       loader.hide(); // Esconde o loader independentemente do sucesso ou erro
     }
@@ -103,4 +114,21 @@ function saveCorrection(activityId) {
     })
 }
 
+function checkboxClicked() {
+  const checkbox = document.getElementById('answer_based');
+  const teacherAnswerDiv = document.getElementById('teacherAnswerDiv');
+  const teacherAnswerInput = document.getElementById('teacherAnswer');
 
+  if (checkbox.checked) {
+    teacherAnswerDiv.classList.toggle('display-tags');
+    if (!teacherAnswerDiv.classList.contains('display-tags')) {
+      teacherAnswerInput.required = true;
+    }
+
+  } else {
+    teacherAnswerDiv.classList.add('display-tags');
+    if (teacherAnswerDiv.classList.contains('display-tags')) {
+      teacherAnswerInput.required = false;
+    }
+  }
+}

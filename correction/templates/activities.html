@@ -42,7 +42,7 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="activityName">Nome</label>
-                            <input type="text" class="form-control" id="activityName" name="name" required placeholder="Nome da atividade">
+                            <input type="text" class="form-control" id="activityName" name="name" placeholder="Nome da atividade" required>
                         </div>
                         <div class="form-group">
                             <label for="activityDescription">Descrição</label>
@@ -50,7 +50,7 @@
                         </div>
                         <div class="form-group">
                             <label for="activityQuestion">Questão</label>
-                            <textarea class="form-control" id="question" name="question" rows="3" placeholder="Escreva o enunciado da questão"></textarea>
+                            <textarea class="form-control" id="question" name="question" rows="3" placeholder="Escreva o enunciado da questão" required></textarea>
                         </div>
                     </form>
                 </div>

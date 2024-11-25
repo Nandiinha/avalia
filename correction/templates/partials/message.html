@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Negado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #dadada;
+            color: #3A506B;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        .container i {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: #3A506B;
+        }
+
+        .container h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .container p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .container a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #3A506B;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .container a:hover {
+            background-color: #dadada;
+            color: #3A506B;
+            border: solid, #3A506B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-lock"></i>
+        <h1>Acesso negado</h1>
+        <p>Desculpe, você não está autorizado a acessar a página que solicitou. <br>
+        Se você acha que isso é um engano, entre em contato conosco.</p>
+        <a href="javascript:history.back()">Voltar para onde estava</a>
+    </div>
+</body>
+</html>
