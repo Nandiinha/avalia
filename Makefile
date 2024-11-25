@@ -1,5 +1,5 @@
 # Nome da aplicação e variáveis globais
-APP_NAME = avalia-web
+APP_NAME = avalia-web-1
 DOCKER_IMAGE = $(APP_NAME):latest
 DOCKER_PORT = 8000
 CONTAINER_PORT = 8000
