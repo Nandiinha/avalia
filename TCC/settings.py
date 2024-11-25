@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente do arquivo .env
@@ -47,7 +48,9 @@ DATABASES = {
 }
 
 # Logar o ambiente de execução
-logger.info(f"App Log - Ambiente de execução: {'Desenvolvimento' if IS_DEVELOPMENT else 'Produção'}")
+logger.info(
+    f"App Log - Ambiente de execução: {'Desenvolvimento' if IS_DEVELOPMENT else 'Produção'}"
+)
 
 # Verificar se o arquivo do banco de dados existe e logar o caminho
 if os.path.exists(DB_SQLLITE_PATH):

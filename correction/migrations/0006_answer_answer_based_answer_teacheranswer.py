@@ -4,21 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('correction', '0005_activity_user_answer_user_student_user_turma_user'),
+        ("correction", "0005_activity_user_answer_user_student_user_turma_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='answer',
-            name='answer_based',
+            model_name="answer",
+            name="answer_based",
             field=models.BooleanField(default=False),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='answer',
-            name='teacherAnswer',
+            model_name="answer",
+            name="teacherAnswer",
             field=models.CharField(blank=True, max_length=1000, null=True),
         ),
     ]
