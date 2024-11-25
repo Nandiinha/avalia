@@ -19,11 +19,11 @@ help:
 	@echo "    make django-migrate    - Executar as migrações do banco de dados"
 	@echo "    make launch            - Abrir o shell do Django no container"
 	@echo "  Comandos do Docker:"
-	@echo "    make docker-build      - Compilar a imagem Docker"
-	@echo "    make docker-up         - Subir o container Docker"
-	@echo "    make docker-down       - Parar e remover containers"
-	@echo "    make logs       - Ver os logs do container em execução"
-	@echo "    make deploy     - Fazer deploy da aplicação com tag baseada no commit"
+	@echo "    make container-build      - Compilar a imagem Docker"
+	@echo "    make container-up - Subir os containers com docker-compose"
+	@echo "    make container-down - Parar e remover os containers com docker-compose"
+	@echo "    make logs              - Ver os logs do container em execução"
+	@echo "    make deploy            - Fazer deploy da aplicação com tag baseada no commit"
 
 # ============================
 # Logs das Configurações
@@ -62,24 +62,30 @@ launch: log-config
 # Comandos do Docker
 # ============================
 
+# Garantir permissões de execução para scripts .sh específicos
+.PHONY: fix-permissions
+fix-permissions:
+	@echo "Garantindo permissões de execução para scripts específicos..."
+	chmod +x $(APP_DIR)/devtools/ollama-entrypoint.sh
+	chmod +x $(APP_DIR)/devtools/wait-for-it.sh
+
 # Compilar a imagem Docker
-.PHONY: docker-build
-docker-build: log-config
+.PHONY: container-build
+container-build: log-config fix-permissions
 	@echo "Construindo a imagem Docker..."
 	docker build --build-arg GIT_COMMIT_HASH=$(GIT_COMMIT) -t $(DOCKER_IMAGE) .
 
-# Subir o container Docker
-.PHONY: docker-up
-docker-up: log-config
-	@echo "Iniciando o container Docker..."
-	docker run -d --name $(APP_NAME) -p $(DOCKER_PORT):$(CONTAINER_PORT) --env-file $(ENV_FILE) $(DOCKER_IMAGE)
+# Subir os containers Docker usando docker-compose
+.PHONY: container-up
+container-up: log-config fix-permissions
+	@echo "Subindo os containers com docker-compose..."
+	docker-compose up --build -d
 
-# Parar e remover containers
-.PHONY: docker-down
-docker-down: log-config
-	@echo "Parando e removendo containers..."
-	docker stop $(APP_NAME) || true
-	docker rm $(APP_NAME) || true
+# Parar os containers Docker usando docker-compose
+.PHONY: container-down
+container-down: log-config
+	@echo "Parando e removendo os containers com docker-compose..."
+	docker-compose down
 
 # Ver os logs do container em execução
 .PHONY: logs
@@ -89,5 +95,5 @@ logs: log-config
 
 # Fazer deploy da aplicação
 .PHONY: deploy
-deploy: docker-build docker-down docker-up
+deploy: container-build container-down container-up logs
 	@echo "Aplicação implantada com sucesso! Versão: $(GIT_COMMIT)"
