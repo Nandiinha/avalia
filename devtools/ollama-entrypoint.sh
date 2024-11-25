@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+apk add --no-cache curl # Para Alpine
+# apt-get update && apt-get install -y curl # Para Debian/Ubuntu
+
 echo "Iniciando o entrypoint para Ollama..."
 
 # Iniciar o servidor Ollama em segundo plano
