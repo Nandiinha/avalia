@@ -15,7 +15,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
-
 # LOGIN
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -97,7 +96,6 @@ def logout(request):
 # USUÁRIO
 @login_required(login_url="/correction/login")
 def user_settings(request):
-
     return render(request, "user_settings.html", {"user": request.user})
 
 
