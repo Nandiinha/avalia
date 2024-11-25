@@ -25,7 +25,7 @@ services:
     volumes:
       - ollama-data:/root/.ollama
       -  ./devtools/ollama-entrypoint.sh:/root/entrypoint.sh
-    entrypoint: /root/entrypoint.sh
+    entrypoint: sh -c "chmod +x /root/entrypoint.sh && /root/entrypoint.sh"
 
 volumes:
   ollama-data:
