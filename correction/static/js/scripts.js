@@ -21,7 +21,7 @@ async function startCorrection() {
     try {
       const form = document.getElementById("answerForm");
       const fileInput = document.getElementById("studentAnswer");
-      const teacherAnswer = document.getElementById('teacherAnswer');
+      const teacherAnswer = document.getElementById('teacherAnswer').value;
   
       if (!fileInput.value) {
         showMessage({
@@ -101,13 +101,13 @@ function saveCorrection(activityId) {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         }
     }).then(data => {
-        if(data.ok){
-            alert("Form salvo com sucesso")
-            window.location.reload()
-        }else
-        {
-            
-        alert("Form salvo com erros!")
+        if(!data.ok){
+            showMessage({
+            message: 'Erro ao salvar a correção!',
+            type: 'toast',
+            severity: 'error',
+            containerId: 'correctionModal_AlertPlaceHolder',
+          });
         }
     }).catch(()=>{
         alert(err.message)

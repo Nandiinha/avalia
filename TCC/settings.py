@@ -80,7 +80,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'TCC.middlewares.ignore_invalid_requests.IgnoreInvalidRequestsMiddleware',
+    "TCC.middlewares.ignore_invalid_requests.IgnoreInvalidRequestsMiddleware",
 ]
 
 ROOT_URLCONF = "TCC.urls"

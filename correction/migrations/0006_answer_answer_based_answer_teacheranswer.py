@@ -4,6 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
         ("correction", "0005_activity_user_answer_user_student_user_turma_user"),
     ]

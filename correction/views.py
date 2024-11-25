@@ -5,7 +5,6 @@ import time
 from decimal import Decimal, InvalidOperation
 
 import docx
-# OCR
 import easyocr
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -16,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+
 # LOGIN
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -97,6 +97,7 @@ def logout(request):
 # USUÁRIO
 @login_required(login_url="/correction/login")
 def user_settings(request):
+
     return render(request, "user_settings.html", {"user": request.user})
 
 
@@ -329,6 +330,11 @@ def create_answer(request, id):
     feedback = request.POST.get("feedback")
     answer_based = request.POST.get("answer_based")
     teacherAnswer = request.POST.get("teacherAnswer")
+
+    if answer_based is None:
+        answer_based = False
+    else:
+        answer_based = True
 
     # Tratamento do campo score
     score = None
@@ -613,9 +619,7 @@ def extract_text(request):
         os.remove(file_path)
 
         # Obtém informações adicionais da requisição
-        question = request.POST.get(
-            "question", "Qual a cor da casa amarela da minha rua?"
-        )
+        question = request.POST.get("question", "")
         teacherAnswer = request.POST.get("teacherAnswer", "")
 
         # Chama a função de correção
@@ -821,7 +825,6 @@ def ollama_chat(model, content):
             - error_message: Mensagem de erro, se houver.
             - processing_time: Tempo em segundos para processar a solicitação.
     """
-    from ollama import Client
 
     client = Client()
     start_time = time.time()
