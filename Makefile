@@ -3,7 +3,7 @@ APP_NAME = avalia-app
 DOCKER_IMAGE = $(APP_NAME):latest
 DOCKER_PORT = 8000
 CONTAINER_PORT = 8000
-ENV_FILE = .env.docker
+ENV_FILE = .env
 
 # Caminho para o diretório do projeto
 APP_DIR = $(shell pwd)
