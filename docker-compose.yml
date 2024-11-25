@@ -17,19 +17,23 @@ services:
       gunicorn --bind 0.0.0.0:${DJANGO_PORT:-8000} --timeout 300 TCC.wsgi:application --log-level debug"
     depends_on:
       - ollama
-      
+    networks:
+      - avalia_network
+
   ollama:
     image: ollama/ollama
     ports:
       - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama
-      -  ./devtools/ollama-entrypoint.sh:/root/entrypoint.sh
+      - ./devtools/ollama-entrypoint.sh:/root/entrypoint.sh
     entrypoint: sh -c "chmod +x /root/entrypoint.sh && /root/entrypoint.sh"
+    networks:
+      - avalia_network
 
 volumes:
   ollama-data:
 
 networks:
-  default:
+  avalia_network:
     driver: bridge
