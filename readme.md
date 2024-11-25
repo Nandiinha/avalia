@@ -24,17 +24,17 @@ Este projeto foi desenvolvido por:
 
 Escolha uma das opções abaixo para configurar e rodar o projeto:
 
-1. **[Execução com Docker](./DOC_DOCKER_EXEC.md)** - Recomendado para um ambiente padronizado e fácil de configurar.
-2. **[Execução Local](./DOC_LOCAL_EXEC.md)** - Para configurar manualmente o ambiente de desenvolvimento.
+1. **[Execução com Docker](doc/DOC_DOCKER_EXEC.md)** - Recomendado para um ambiente padronizado e fácil de configurar.
+2. **[Execução Local](doc/DOC_LOCAL_EXEC.md)** - Para configurar manualmente o ambiente de desenvolvimento.
 
 ---
 
 ## 🌍 Deployment
 
-Para informações sobre como realizar o deploy deste projeto no **Vercel**, consulte o arquivo [DEPLOYMENT.md](./DOC_DEPLOYMENT.md).
+Para informações sobre como realizar o deploy deste projeto no **Vercel**, consulte o arquivo [DEPLOYMENT.md](doc/DOC_DEPLOYMENT.md).
 
 ---
 
 ## 🤝 Contribuindo para o Projeto
 
-Contribuições são bem-vindas! Consulte o arquivo [CONTRIBUTING.md](./DOC_CONTRIBUTING.md) para diretrizes detalhadas sobre como contribuir.
+Contribuições são bem-vindas! Consulte o arquivo [CONTRIBUTING.md](doc/DOC_CONTRIBUTING.md) para diretrizes detalhadas sobre como contribuir.

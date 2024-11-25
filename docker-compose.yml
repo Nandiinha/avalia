@@ -1,6 +1,4 @@
-version: '3.9'
-
-services:
+services: 
   web:
     build:
       context: .
@@ -8,12 +6,26 @@ services:
     ports:
       - "${DJANGO_PORT:-8000}:${DJANGO_PORT:-8000}"
     volumes:
-      - .:/app  # Código local -> Caminho no container
-      # - ${DB_SQLITE_HOST_PATH:-./db.sqlite3}:${DB_SQLITE_PATH:-/app/db.sqlite3}  # Banco persistente
+      - .:/app
       - ./db.sqlite3:/app/db.sqlite3
     env_file:
-      - .env.docker
+      - .env
     entrypoint: >
       sh -c "
+        ./devtools/wait-for-it.sh ollama:11434 --timeout=60 &&
       python manage.py migrate &&
       gunicorn --bind 0.0.0.0:${DJANGO_PORT:-8000} --timeout 300 TCC.wsgi:application"
+    depends_on:
+      - ollama
+      
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+      -  ./devtools/ollama-entrypoint.sh:/root/entrypoint.sh
+    entrypoint: /root/entrypoint.sh
+
+volumes:
+  ollama-data:

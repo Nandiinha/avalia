@@ -1,8 +1,0 @@
-*.log
-*.sqlite3
-__pycache__/
-**/__pycache__/
-*/migrations/__pycache__/
-*.pyc
-*.pyo
-node_modules/

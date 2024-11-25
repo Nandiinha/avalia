@@ -10,7 +10,7 @@ COPY requirements.txt /app/
 # Configurar um diretório temporário para cache do pip
 ENV PIP_CACHE_DIR=/tmp/pip_cache
 
-# Instalar dependências
+# Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
@@ -20,18 +20,6 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
-
-# Instalar o Ollama
-RUN curl -O https://ollama.com/download/linux/ollama-cli-latest.tar.gz && \
-    tar -xvzf ollama-cli-latest.tar.gz && \
-    mv ollama /usr/local/bin/ollama && \
-    rm ollama-cli-latest.tar.gz
-
-# Verificar instalação do Ollama
-RUN ollama version
-
-# Instalar o modelo Mistral no Ollama
-RUN ollama pull mistral
 
 # Instalar o pip e as dependências do projeto usando o cache temporário
 RUN pip install --cache-dir=${PIP_CACHE_DIR} --upgrade pip
