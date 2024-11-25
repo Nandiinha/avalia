@@ -1,5 +1,12 @@
+import mimetypes
+import os
+import re
+import time
 from decimal import Decimal, InvalidOperation
 
+import docx
+# OCR
+import easyocr
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as loginDjango
@@ -12,19 +19,10 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 # LOGIN
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from ollama import Client
+from PyPDF2 import PdfReader
 
 from .models import Activity, Answer, Student, Turma
-import re
-import os
-import mimetypes
-import time
-
-import docx
-# OCR
-import easyocr
-from PyPDF2 import PdfReader
-from ollama import Client
-
 
 
 # VIEWS DO LOGIN
@@ -483,9 +481,6 @@ def delete_student(request, id):
     return redirect("students", id=id_class)
 
 
-
-
-
 def extract_text_from_pdf(pdf_path):
     """
     Extrai texto puro de um arquivo PDF usando PyPDF2
@@ -618,15 +613,19 @@ def extract_text(request):
         os.remove(file_path)
 
         # Obtém informações adicionais da requisição
-        question = request.POST.get("question", "Qual a cor da casa amarela da minha rua?")
+        question = request.POST.get(
+            "question", "Qual a cor da casa amarela da minha rua?"
+        )
         teacherAnswer = request.POST.get("teacherAnswer", "")
 
         # Chama a função de correção
-        score, feedback, error_message = correction(question, extracted_text, teacherAnswer)
+        score, feedback, error_message = correction(
+            question, extracted_text, teacherAnswer
+        )
         # Verifica se houve um erro na função de correção
         if error_message:
             raise Exception(error_message)
-        
+
         return JsonResponse(
             {"score": score, "feedback": feedback, "extract_value": extracted_text},
             status=200,
@@ -751,7 +750,9 @@ def correction(question, answer, teacherAnswer):
     """
 
     # Chamar a função de comunicação com o modelo
-    result, error_message, processing_time = ollama_chat(model="mistral", content=content)
+    result, error_message, processing_time = ollama_chat(
+        model="mistral", content=content
+    )
 
     # Imprimir a resposta bruta do modelo para depuração
     print("Resposta bruta do modelo:", repr(result))
@@ -783,7 +784,9 @@ def correction(question, answer, teacherAnswer):
 
     # Expressões regulares melhoradas
     match = re.search(r"\s*Nota\s*:\s*([0-9]+(?:\.[0-9]+)?)", result, re.IGNORECASE)
-    feedback_match = re.search(r"\s*Feedback\s*:\s*(.+)", result, re.DOTALL | re.IGNORECASE)
+    feedback_match = re.search(
+        r"\s*Feedback\s*:\s*(.+)", result, re.DOTALL | re.IGNORECASE
+    )
 
     if match and feedback_match:
         try:
@@ -802,6 +805,7 @@ def correction(question, answer, teacherAnswer):
 
     # Resposta inesperada sem nota ou feedback
     return None, result.strip(), "Resposta inesperada. Não foi possível processar."
+
 
 def ollama_chat(model, content):
     """
@@ -823,10 +827,12 @@ def ollama_chat(model, content):
     start_time = time.time()
 
     try:
-        response = client.chat(model=model, messages=[{"role": "user", "content": content}])
+        response = client.chat(
+            model=model, messages=[{"role": "user", "content": content}]
+        )
         end_time = time.time()
 
-        result = response.get('message', {}).get('content', '')
+        result = response.get("message", {}).get("content", "")
         processing_time = end_time - start_time
         return result, None, processing_time
 
