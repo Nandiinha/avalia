@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Variável para o nome do modelo
+MODEL_NAME="mistral:7b-instruct-q3_K_L"
+
 apt-get update && apt-get install -y curl
 
 echo "Iniciando o entrypoint para Ollama..."
@@ -20,11 +23,11 @@ for i in $(seq 1 10); do
   sleep 2
 done
 
-# Fazer o pull do modelo mistral
-if ollama pull mistral; then
-  echo "Modelo mistral baixado com sucesso."
+# Fazer o pull do modelo definido na variável
+if ollama pull $MODEL_NAME; then
+  echo "Modelo $MODEL_NAME baixado com sucesso."
 else
-  echo "Modelo mistral já disponível ou erro ao baixar."
+  echo "Modelo $MODEL_NAME já disponível ou erro ao baixar."
 fi
 
 # Finalizar o servidor Ollama em segundo plano
