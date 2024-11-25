@@ -621,7 +621,7 @@ def extract_text(request):
         os.remove(file_path)
 
         # Obtém informações adicionais da requisição
-        question = request.POST.get("question", "")
+        question = request.POST.get("question", "Qual a cor da casa amarela da minha rua?")
         teacherAnswer = request.POST.get("teacherAnswer", "")
 
         # Chama a função de correção

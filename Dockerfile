@@ -35,4 +35,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Iniciar o servidor Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "TCC.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--timeout", "300", "--log-level", "debug", "TCC.wsgi:application"]
