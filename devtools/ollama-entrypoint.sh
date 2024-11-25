@@ -1,8 +1,7 @@
 #!/bin/sh
 set -e
 
-apk add --no-cache curl # Para Alpine
-# apt-get update && apt-get install -y curl # Para Debian/Ubuntu
+apt-get update && apt-get install -y curl
 
 echo "Iniciando o entrypoint para Ollama..."
 
