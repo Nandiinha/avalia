@@ -21,7 +21,7 @@ Este documento descreve como realizar o deploy de uma nova versão da aplicaçã
 4. **Reinicie o container com a nova versão**
    - Execute o comando:
      ```bash
-     make docker-deploy
+     make deploy
      ```
 
 ---

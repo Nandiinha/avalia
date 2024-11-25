@@ -22,8 +22,8 @@ help:
 	@echo "    make docker-build      - Compilar a imagem Docker"
 	@echo "    make docker-up         - Subir o container Docker"
 	@echo "    make docker-down       - Parar e remover containers"
-	@echo "    make docker-logs       - Ver os logs do container em execução"
-	@echo "    make docker-deploy     - Fazer deploy da aplicação com tag baseada no commit"
+	@echo "    make logs       - Ver os logs do container em execução"
+	@echo "    make deploy     - Fazer deploy da aplicação com tag baseada no commit"
 
 # ============================
 # Logs das Configurações
@@ -82,12 +82,12 @@ docker-down: log-config
 	docker rm $(APP_NAME) || true
 
 # Ver os logs do container em execução
-.PHONY: docker-logs
-docker-logs: log-config
+.PHONY: logs
+logs: log-config
 	@echo "Exibindo logs do container..."
 	docker logs -f $(APP_NAME)
 
 # Fazer deploy da aplicação
-.PHONY: docker-deploy
-docker-deploy: docker-build docker-down docker-up
+.PHONY: deploy
+deploy: docker-build docker-down docker-up
 	@echo "Aplicação implantada com sucesso! Versão: $(GIT_COMMIT)"
