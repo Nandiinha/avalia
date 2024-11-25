@@ -2,7 +2,7 @@
 set -e
 
 # Variável para o nome do modelo
-MODEL_NAME="mistral:7b-instruct-q3_K_L"
+MODEL_NAME="mistral"
 
 apt-get update && apt-get install -y curl
 

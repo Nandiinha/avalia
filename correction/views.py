@@ -16,11 +16,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Activity, Answer, Student, Turma
 import re
 import os
-import requests
-
 import mimetypes
-
-
+import time
 
 import docx
 # OCR
@@ -628,7 +625,7 @@ def extract_text(request):
         score, feedback, error_message = correction(question, extracted_text, teacherAnswer)
         # Verifica se houve um erro na função de correção
         if error_message:
-            raise ValueError(error_message)
+            raise Exception(error_message)
         
         return JsonResponse(
             {"score": score, "feedback": feedback, "extract_value": extracted_text},
@@ -644,7 +641,7 @@ def extract_text(request):
 
 def correction(question, answer, teacherAnswer):
     """
-    Função para corrigir respostas de alunos usando o Ollama.
+    Função para corrigir respostas de alunos usando o Ollama com critérios atualizados.
 
     Args:
         question (str): Enunciado da questão.
@@ -657,109 +654,183 @@ def correction(question, answer, teacherAnswer):
             - feedback: Feedback gerado (str) ou None em caso de erro.
             - error_message: Mensagem de erro (str) ou None se não houve erro.
     """
-    print("Chegou na função correction")
+    print("Iniciando correção...")
 
-    if len(teacherAnswer) > 0:
-        content = f"""
-            Você será um corretor de atividades. Sua tarefa é avaliar a resposta do aluno com base no enunciado da atividade, verificando se a resposta está correta, coerente e dentro do contexto do enunciado. 
+    # Prompt atualizado com os novos critérios e exemplos
+    content = f"""
+    **Contexto:**
 
-            Siga estas diretrizes:  
-            1. Leia o enunciado da atividade e a resposta fornecida pelo aluno.  
-            2. Verifique se a resposta do aluno faz sentido com o enunciado e se está correta.  
-            3. Caso a resposta esteja fora do contexto ou não faça sentido com o enunciado, desconsidere a resposta e atribua nota zero.  
-            4. Atribua uma nota de 0 a 10 baseada na correção, clareza e completude da resposta.  
-            5. Forneça um feedback explicando o motivo da nota, destacando acertos e apontando os erros ou lacunas na resposta.  
+    Você é um corretor altamente especializado em avaliação de atividades educacionais em português do Brasil. Sua tarefa é corrigir respostas de alunos com base no enunciado fornecido e, quando disponível, na resposta base do professor. Suas respostas devem ser precisas, objetivas e baseadas estritamente nas informações fornecidas. Não inclua informações adicionais, opiniões ou justificativas irrelevantes.
 
-            Formato de entrada:  
-            - Enunciado da atividade: {question}
-            - Resposta do aluno: {answer} 
+    **Tarefas:**
 
-            Formato de saída:  
-            - Nota: [0-10]  
-            - Feedback: [Comentário explicativo sobre a nota]
+    1. **Validação da Entrada:**
 
-            Certifique-se de manter a avaliação justa e bem fundamentada.  
-        """
-    else:
-        content = f"""
-            Você será um corretor de atividades com base em uma resposta padrão fornecida pelo professor. Sua tarefa é comparar a resposta do aluno com a resposta base e avaliar sua precisão, clareza e alinhamento.
+       - Verifique se o enunciado e a resposta do aluno são claros e válidos.
+       - Se o enunciado ou a resposta do aluno não forem válidos ou estiverem incompreensíveis, atribua nota **0.0**.
+       - No feedback, responda exatamente: "O enunciado ou a resposta fornecida não são válidos."
 
-            Siga estas diretrizes:
+    2. **Avaliação da Resposta do Aluno:**
 
-            Leia a resposta base fornecida pelo professor e a resposta do aluno.
-            Verifique se a resposta do aluno está alinhada com a resposta base.
-            Se houver inconsistências, erros ou falta de alinhamento com a resposta base, destaque-os.
-            Caso a resposta do aluno esteja fora do contexto da resposta base, desconsidere-a e atribua nota zero.
-            A resposta base fornecida pelo professor deve ser considerada como verdade e referência principal para a correção.
-            Atribua uma nota de 0 a 10 baseada na adequação da resposta do aluno à resposta base.
-            Forneça um feedback explicando o motivo da nota, destacando acertos e apontando os erros ou lacunas na resposta.
-            Formato de entrada:
+       - Compare a resposta do aluno com o enunciado e, se disponível, com a resposta base do professor.
+       - Avalie a coerência, correção e completude da resposta em relação ao enunciado.
+       - Para questões que exigem precisão absoluta (ex.: cálculos ou respostas exatas), atribua nota **0.0** se a resposta estiver incorreta.
+       - Para perguntas abertas (ex.: nomes, conceitos), atribua nota máxima para respostas corretas, mesmo que contenham detalhes adicionais.
+       - Atribua uma nota parcial se a resposta demonstrar entendimento parcial, mas contiver pequenos erros.
 
-            Resposta base do professor: {teacherAnswer}
-            Resposta do aluno: {answer}
-            
-            Formato de saída:
-            Nota: [0-10]
-            Feedback: [Comentário explicativo sobre a nota]
-            Certifique-se de seguir rigorosamente a resposta base como referência, sem incluir interpretações externas.
-        """
+    3. **Atribuição de Nota:**
 
-    # Chamar a função de comunicação com o Ollama
-    result, error_message = ollama_chat(model="mistral", content=content)
+       - **Correção:** A resposta está tecnicamente correta e alinhada ao solicitado no enunciado? Respostas corretas devem receber nota máxima, independentemente de estilo ou sugestões adicionais.
+       - **Completude:** A resposta cobre todos os aspectos explicitamente exigidos no enunciado? Não penalize por informações ausentes que não foram solicitadas.
+       - **Clareza:** A resposta é compreensível? Sugestões de estilo, como concisão, devem ser incluídas apenas no feedback e não devem impactar a nota.
 
-    if error_message:
-        return None, None, error_message
+    4. **Geração de Feedback:**
 
-    # Extrair a nota da resposta usando regex
-    match = re.search(r"\d+(\.\d+)?", result)
-    if match:
+       - Explique o motivo da nota de forma clara e concisa.
+       - Críticas ou sugestões que extrapolem o escopo do enunciado devem ser apenas mencionadas no feedback e não devem penalizar a nota.
+
+    **Formato Estrito da Resposta:**
+
+    - Nota: [Número entre 0.0 e 10.0, com no máximo uma casa decimal; ex.: 0.0, 9.5, 10.0]
+    - Feedback: [Descrição objetiva, clara, direta e concisa. Não inclua informações irrelevantes.]
+
+    **IMPORTANTE:** Sua resposta **deve** seguir exatamente o formato especificado: primeiro "Nota:" seguido da nota, depois "Feedback:" seguido do feedback. Não inclua informações adicionais.
+
+    **Exemplos:**
+
+    1. **Entrada Inválida:**
+
+       - **Enunciado:** (texto ilegível ou ausente)
+       - **Resposta do aluno:** 42.
+       - **Resposta base do professor:** Não fornecida.
+       - **Saída Esperada:**
+         - Nota: 0.0
+         - Feedback: O enunciado ou a resposta fornecida não são válidos.
+
+    2. **Pergunta Objetiva Correta:**
+
+       - **Enunciado:** Quanto é 2+2?
+       - **Resposta do aluno:** 4.
+       - **Resposta base do professor:** 4.
+       - **Saída Esperada:**
+         - Nota: 10.0
+         - Feedback: A resposta está correta. O aluno indicou corretamente que 2+2 é 4.
+
+    3. **Pergunta Objetiva Incorreta:**
+
+       - **Enunciado:** Quanto é 2+2?
+       - **Resposta do aluno:** 5.
+       - **Resposta base do professor:** 4.
+       - **Saída Esperada:**
+         - Nota: 0.0
+         - Feedback: A resposta está incorreta. O resultado correto de 2+2 é 4.
+
+    4. **Pergunta Aberta com Erro de Grafia:**
+
+       - **Enunciado:** Quem descobriu o Brasil?
+       - **Resposta do aluno:** Pedro Álvares Cabaral.
+       - **Resposta base do professor:** Pedro Álvares Cabral.
+       - **Saída Esperada:**
+         - Nota: 8.0
+         - Feedback: A resposta demonstra entendimento, mas contém um erro de grafia no nome "Cabral".
+
+    5. **Resposta com Detalhes Adicionais:**
+
+       - **Enunciado:** Qual é a cor da casa amarela?
+       - **Resposta do aluno:** A casa é amarela como o sol brilhante.
+       - **Resposta base do professor:** Amarela.
+       - **Saída Esperada:**
+         - Nota: 10.0
+         - Feedback: A resposta está correta. Embora contenha detalhes extras, está alinhada com o enunciado.
+
+    **Entrada:**
+
+    - **Enunciado da atividade:** {question}
+    - **Resposta do aluno:** {answer}
+    - **Resposta base do professor:** {teacherAnswer if teacherAnswer else "Não fornecida"}
+    """
+
+    # Chamar a função de comunicação com o modelo
+    result, error_message, processing_time = ollama_chat(model="mistral", content=content)
+
+    # Imprimir a resposta bruta do modelo para depuração
+    print("Resposta bruta do modelo:", repr(result))
+
+    # Logs detalhados agrupados em um único bloco
+    logs = f"""
+    ======== CORREÇÃO INICIADA ========
+    [ENUNCIADO]
+    {question}
+
+    [RESPOSTA DO ALUNO]
+    {answer}
+
+    [RESPOSTA BASE DO PROFESSOR]
+    {teacherAnswer if teacherAnswer else "Não fornecida"}
+
+    ======== RESPOSTA DO MODELO ========
+    {result}
+
+    ======== TEMPO DE PROCESSAMENTO ========
+    {processing_time:.2f} segundos
+
+    ======== MENSAGEM DE ERRO ========
+    {error_message if error_message else "Nenhum erro encontrado"}
+
+    ======== CORREÇÃO FINALIZADA ========
+    """
+    print(logs)
+
+    # Expressões regulares melhoradas
+    match = re.search(r"\s*Nota\s*:\s*([0-9]+(?:\.[0-9]+)?)", result, re.IGNORECASE)
+    feedback_match = re.search(r"\s*Feedback\s*:\s*(.+)", result, re.DOTALL | re.IGNORECASE)
+
+    if match and feedback_match:
         try:
-            score = float(match.group())
-        except ValueError:
-            print("Erro ao converter a resposta para um número. Resposta recebida:", result)
-            return None, result, "Erro ao converter a resposta para um número."
-    else:
-        print("Nenhum número encontrado na resposta. Resposta recebida:", result)
-        return None, result, "Nenhum número encontrado na resposta."
+            # Converter a nota para float com até uma casa decimal
+            score = round(float(match.group(1)), 1)
+            feedback = feedback_match.group(1).strip()
 
-    print("Nota:", score)
-    print("Retorno:", result)
-    return score, result, None
+            return score, feedback, None
+
+        except ValueError:
+            return None, result.strip(), "Erro ao converter a nota."
+
+    # Caso a resposta seja exatamente o feedback padrão para entradas inválidas
+    if "O enunciado ou a resposta fornecida não são válidos." in result:
+        return 0.0, "O enunciado ou a resposta fornecida não são válidos.", None
+
+    # Resposta inesperada sem nota ou feedback
+    return None, result.strip(), "Resposta inesperada. Não foi possível processar."
 
 def ollama_chat(model, content):
     """
-    Função síncrona para enviar mensagens ao Ollama com streaming habilitado.
+    Função para interagir com o modelo Ollama.
 
     Args:
-        model (str): Nome do modelo (e.g., "mistral").
-        content (str): Conteúdo da mensagem para o Ollama.
+        model (str): Nome do modelo.
+        content (str): Conteúdo da solicitação.
 
     Returns:
-        tuple: (result, error_message)
-            - result: Resposta completa do Ollama (str) ou None em caso de erro.
-            - error_message: Mensagem de erro (str) ou None se não houve erro.
+        tuple: (result, error_message, processing_time)
+            - result: Resposta do modelo.
+            - error_message: Mensagem de erro, se houver.
+            - processing_time: Tempo em segundos para processar a solicitação.
     """
-    OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-    
+    from ollama import Client
+
+    client = Client()
+    start_time = time.time()
+
     try:
-        # Inicializa o cliente do Ollama com o host configurado
-        client = Client(host=OLLAMA_HOST)
+        response = client.chat(model=model, messages=[{"role": "user", "content": content}])
+        end_time = time.time()
 
-        # Chamar a API do Ollama com streaming
-        stream = client.chat(
-            model=model,
-            messages=[{"role": "user", "content": content}],
-            stream=True
-        )
-
-        # Iterar sobre o stream e construir a resposta
-        result = ""
-        for chunk in stream:
-            result += chunk["message"]["content"]  # Acessa o conteúdo do chunk
-
-        return result, None
+        result = response.get('message', {}).get('content', '')
+        processing_time = end_time - start_time
+        return result, None, processing_time
 
     except Exception as e:
-        error_message = f"Erro ao comunicar-se com o Ollama no endereço {OLLAMA_HOST}: {str(e)}"
-        print(error_message)
-        return None, error_message
+        end_time = time.time()
+        processing_time = end_time - start_time
+        return None, str(e), processing_time
