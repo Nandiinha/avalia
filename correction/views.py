@@ -20,6 +20,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from ollama import Client
 from PyPDF2 import PdfReader
+from sympy import use
 
 from .models import Activity, Answer, Student, Turma
 
@@ -233,6 +234,7 @@ def create_activity(request, id):
             messages.error(request, "A questão deve ter no máximo 200 caracteres.")
             return redirect('activities', id=id)
         activity = Activity.objects.create(
+            user=request.user,
             name=name, 
             id_class=id_class, 
             description=description, 
@@ -240,26 +242,7 @@ def create_activity(request, id):
         )
         activity.save()
         return redirect('activities', id=id_class.id)
-    return render(request, 'create_activity.html')  # Caso GET seja chamado
-
-
-
-@login_required(login_url="/correction/login")
-def create_activity(request, id):
-    id_class = get_object_or_404(Turma, id=id)
-    name = request.POST.get("name")
-    description = request.POST.get("description")
-    question = request.POST.get("question")
-
-    activity = Activity.objects.create(
-        name=name,
-        id_class=id_class,
-        description=description,
-        question=question,
-        user=request.user,
-    )
-    activity.save()
-    return redirect("activities", id=id_class.id)
+    return render(request, 'create_activity.html')
 
 
 @login_required(login_url="/correction/login")
@@ -289,16 +272,16 @@ def update_activity(request, id):
             description = request.POST.get("description")
             question = request.POST.get("question")
 
-	 # Validação dos campos
-        if len(name) > 50:
-            messages.error(request, "O nome deve ter no máximo 50 caracteres.")
-            return redirect('select_activity', id=id)
-        if len(description) > 1000:
-            messages.error(request, "A descrição deve ter no máximo 1000 caracteres.")
-            return redirect('select_activity', id=id)
-        if len(question) > 200:
-            messages.error(request, "A questão deve ter no máximo 200 caracteres.")
-            return redirect('select_activity', id=id)
+        # Validação dos campos
+            if len(name) > 50:
+                messages.error(request, "O nome deve ter no máximo 50 caracteres.")
+                return redirect('select_activity', id=id)
+            if len(description) > 1000:
+                messages.error(request, "A descrição deve ter no máximo 1000 caracteres.")
+                return redirect('select_activity', id=id)
+            if len(question) > 200:
+                messages.error(request, "A questão deve ter no máximo 200 caracteres.")
+                return redirect('select_activity', id=id)
             activity.name = name
             activity.description = description
             activity.question = question
@@ -306,8 +289,9 @@ def update_activity(request, id):
     except Activity.DoesNotExist:
         # Renderiza uma página com a mensagem de erro
         return render(request, "partials/message.html", status=403)
-
     return redirect("select_activity", id=id)
+
+
 @login_required(login_url="/correction/login")
 def delete_activity(request, id):
     try:
@@ -664,6 +648,17 @@ def extract_text(request):
     except Exception as e:
         return HttpResponse(f"Erro interno do servidor: {e}", status=500)
 
+#ATIVIDADE
+@login_required(login_url='/correction/login') 
+def activities(request, id):
+    try:
+        id_class = Turma.objects.get(id=id, user=request.user)
+        activities = Activity.objects.filter(id_class=id_class)
+    except Turma.DoesNotExist:
+        # Renderiza uma página com a mensagem de erro
+        return render(request, 'partials/message.html', status=403)
+    
+    return render(request, 'activities.html', {'activities': activities, 'turma': id_class})
 
 def correction(question, answer, teacherAnswer):
     """
