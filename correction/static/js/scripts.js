@@ -88,26 +88,28 @@ function saveCorrection(activityId) {
 
     const form = document.getElementById("answerForm");
     const formData = new FormData(form);
-    formData.append("id_student", parseInt(document.getElementById("studentName").value, 10))
+    formData.append("id_student", parseInt(document.getElementById("studentName").value,10))
 
-    fetch("/correction/create_answer/" + activityId + "/", {
+    fetch("/correction/create_answer/"+activityId+"/", {
         method: 'POST',
         body: formData,
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         }
     }).then(data => {
-        if (data.ok) {
-            alert("Form salvo com sucesso")
-            window.location.reload()
-        } else {
-
-            alert("Form salvo com erros!")
+        if(!data.ok){
+            showMessage({
+            message: 'Erro ao salvar a correção!',
+            type: 'toast',
+            severity: 'error',
+            containerId: 'correctionModal_AlertPlaceHolder',
+          });
         }
-    }).catch(() => {
+    }).catch(()=>{
         alert(err.message)
     })
 }
+
 function checkboxClicked() {
     const checkbox = document.getElementById('answer_based');
     const teacherAnswerDiv = document.getElementById('teacherAnswerDiv');

@@ -80,8 +80,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "TCC.middlewares.ignore_invalid_requests.IgnoreInvalidRequestsMiddleware",
 ]
+
+# Condicional para adicionar o middleware de validação de requests inválidos apenas em produção
+if ENVIRONMENT == "production":
+    MIDDLEWARE.append("TCC.middlewares.ignore_invalid_requests.IgnoreInvalidRequestsMiddleware")
 
 ROOT_URLCONF = "TCC.urls"
 
