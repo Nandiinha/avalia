@@ -1,15 +1,19 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <title>{{ turma.name}}</title>
 </head>
+
 <body>
     <nav class="navbar navbar-light bg-faded">
         <a class="navbar-brand">Avalia > {{ turma.name}}</a>
@@ -35,13 +39,13 @@
                 </a>
             </li>
             <li class="config">
-                <a href="#">
+                <a href="{% url 'user_settings'%}">
                     <span class="icon"><i class="fa-solid fa-gear"></i></span>
                     <span class="title">Configurações</span>
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a href="{% url 'logout' %}">
                     <span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
                     <span class="title">Sair</span>
                 </a>
@@ -50,8 +54,9 @@
     </div>
     <div class="toggle" onclick="toggleMenu();"></div>
     <!-- Modal para Nova Turma -->
-    <div class="modal fade" id="novaTurmaModal" tabindex="-1" role="dialog" aria-labelledby="novaTurmaModalLabel" aria-hidden="true">
-        <div class="modal-dialog" >
+    <div class="modal fade" id="novaTurmaModal" tabindex="-1" role="dialog" aria-labelledby="novaTurmaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -66,11 +71,13 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="nomeTurma" class="col-form-label">Nome</label>
-                                    <input type="text" class="form-control" id="nomeTurma" name="name" required placeholder="Nome da turma">
+                                    <input type="text" class="form-control" id="nomeTurma" name="name" required
+                                        placeholder="Nome da turma">
                                 </div>
                                 <div class="form-group">
                                     <label for="secao" class="col-form-label">Seção</label>
-                                    <input type="text" name="section" id="secao" class="form-control" placeholder="Seção da turma">
+                                    <input type="text" name="section" id="secao" class="form-control"
+                                        placeholder="Seção da turma">
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -84,7 +91,7 @@
         </div>
     </div>
     <script type="text/javascript">
-        function toggleMenu(){
+        function toggleMenu() {
             let navigation = document.querySelector('.navigation');
             let toggle = document.querySelector('.toggle');
             navigation.classList.toggle('active');
@@ -116,7 +123,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Obtenha a URL atual
             var currentUrl = window.location.href;
 
@@ -124,7 +131,7 @@
             var navLinks = document.querySelectorAll('.navbar-nav .nav-link');
 
             // Itere sobre os links e verifique se o href corresponde à URL atual
-            navLinks.forEach(function(link) {
+            navLinks.forEach(function (link) {
                 if (currentUrl.includes(link.getAttribute('href'))) {
                     // Adiciona a classe active ao item pai (nav-item)
                     link.parentElement.classList.add('active');
@@ -140,14 +147,14 @@
             const nomeField = document.getElementById("nomeTurma");
             const secaoField = document.getElementById("secao");
             const campoInvalido = document.getElementById("caracter_limit_error");
-    
+
             console.log("Teste");
-    
+
             // Garantir que o evento de submit seja interceptado corretamente
             form.addEventListener("submit", function (e) {
                 let isValid = true;
                 let errorMessage = '';
-    
+
                 // Verifica o tamanho do campo Nome
                 if (nomeField.value.trim().length > 100) {
                     console.log("Erro no campo Nome");
@@ -160,7 +167,7 @@
                         containerId: 'caracter_limit_error'
                     });
                 }
-    
+
                 // Verifica o tamanho do campo Seção
                 if (secaoField.value.trim().length > 100) {
                     console.log("Erro no campo Seção");
@@ -173,7 +180,7 @@
                         containerId: 'caracter_limit_error'
                     });
                 }
-    
+
                 // Se qualquer campo for inválido, impede o envio
                 if (!isValid) {
                     e.preventDefault(); // Impede a submissão do formulário
@@ -183,4 +190,5 @@
         });
     </script>
 </body>
+
 </html>
