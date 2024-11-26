@@ -1,46 +1,102 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <title>{{ turma.name}}</title> <!--alterado-->
 </head>
+
 <body>
     <!--Referência tela de turma-->
-    {% include 'tabs.html' %}
+    {% include 'tabs.html' %}<!--alterado-->
 
     <div class="center-container">
         <div class="form-container">
             <div class="form-top">
-                <h5 class="modal-title">Detalhes da turma</h5>
+                <h5 class="modal-title">Informações da turma</h5>
             </div>
-            
+
             <!-- Formulário para atualizar a turma -->
-            <form action="{% url 'update' turma.id %}" method="POST">
+            <form action="{% url 'update' turma.id %}" method="POST" id="detailsForm">
                 {% csrf_token %}
                 <div class="form-group">
+                    <div id="caracter_limit_error"></div> <!--alterado-->
                     <label for="editarTurma">Nome da Turma:</label>
-                    <input type="text" class="form-control" name="name" value="{{ turma.name }}">
+                    <input type="text" class="form-control" id="turmaName" name="name" value="{{ turma.name }}"
+                        required>
                 </div>
                 <div class="form-group">
                     <label for="editarSecao">Seção:</label>
-                    <input type="text" class="form-control" name="section" value="{{ turma.section }}">
+                    <input type="text" class="form-control" id="turmaSection" name="section"
+                        value="{{ turma.section }}">
                 </div>
                 <div class="form-group">
                     <label for="editarDescription">Descrição:</label>
                     <textarea class="form-control" name="description" rows="3">{{ turma.description }}</textarea>
-                </div>                
+                </div>
                 <div class="form-group text-right">
+                    <button type="button" id="deleteButton" class="btn btn-delete ml-2">Deletar Turma</button>
                     <button type="submit" class="btn btn-primary">Salvar</button>
-                    <button type="submit" formaction="{% url 'delete' turma.id %}" class="btn btn-delete ml-2">Deletar Turma</button>
                 </div>
             </form>
-
         </div>
     </div>
+
+    <!--Validação dos Campos Nome e Seção-->
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("detailsForm");
+            const nomeField = document.getElementById("turmaName");
+            const sectionField = document.getElementById("turmaSection");
+            const deleteButton = document.getElementById("deleteButton");
+
+            // Intercepta o envio do formulário para validação
+            form.addEventListener("submit", function (e) {
+                let isValid = true;
+
+                // Verifica o tamanho do campo Nome
+                if (nomeField.value.trim().length > 100) {
+                    isValid = false;
+                    showMessage({
+                        message: "Você excedeu o número de caracteres para o campo Nome.",
+                        type: "toast",
+                        severity: "error",
+                        containerId: "toastContainer",
+                    });
+                }
+                // Verifica o tamanho do campo Seção
+                if (sectionField.value.trim().length > 100) {
+                    isValid = false;
+                    showMessage({
+                        message: "Você excedeu o número de caracteres para o campo Seção.",
+                        type: "toast",
+                        severity: "error",
+                        containerId: "toastContainer",
+                    });
+                }
+                // Se qualquer campo for inválido, impede o envio do formulário
+                if (!isValid) {
+                    e.preventDefault();
+                    console.log("Formulário não enviado devido a erros.");
+                }
+            });
+            // Evento de clique no botão de deletar, envia o formulário sem validação
+            deleteButton.addEventListener("click", function () {
+                form.action = "{% url 'delete' turma.id %}";  // Define a URL de ação para o botão de deletar
+                form.submit();  // Envia o formulário diretamente
+            });
+        });
+    </script>
+    <div id="toastContainer" style="position: absolute; top: 20px; right: 20px; z-index: 1050;"></div>
 </body>
+
 </html>

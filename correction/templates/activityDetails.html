@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,30 +10,34 @@
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <title>Atividade</title>
 </head>
+
 <body>
     {% include 'menu.html' %}
 
-    <div class="container content-item">  
-        <div class="activity-details-box">    
+    <div class="container content-item">
+        <div class="activity-details-box">
             <h5 class="activity-title">{{ activity.name }}</h5>
             <p class="activity-description"><strong>Descrição: </strong>{{ activity.description }}</p>
             <p class="activity-question"><strong>Questão:</strong> {{ activity.question }}</p>
-            <button type="button" class="btn btn-light edit-icon" data-toggle="modal" data-target="#editActivityModal" title="Editar atividade">
-            <i class="fas fa-pencil-alt"></i>
+            <button type="button" class="btn btn-light edit-icon" data-toggle="modal" data-target="#editActivityModal"
+                title="Editar atividade">
+                <i class="fas fa-pencil-alt"></i> <!-- Font Awesome -->
             </button>
         </div>
 
         <!-- Botão para iniciar correção -->
-        <button type="button" class="mt-3 row-itens" data-toggle="modal" data-target="#correctionModal">Iniciar correção</button>
-        
+        <button type="button" class="mt-3 row-itens" data-toggle="modal" data-target="#correctionModal">Iniciar
+            correção</button>
+
         <ul class="mt-3">
             {% for answer in answers %}
-                <a href="{% url 'select_answer' answer.id %}" class="row-itens d-flex justify-content-between align-items-center">
-                    <span>{{ answer.id_student.name }}</span>
-                    <span class="score">{{ answer.score }}/10.0</span>
-                </a>
+            <a href="{% url 'select_answer' answer.id %}"
+                class="row-itens d-flex justify-content-between align-items-center">
+                <span>{{ answer.id_student.name }}</span>
+                <span class="score">{{ answer.score }}/10.0</span>
+            </a>
             {% empty %}
-                <li class="row-itens">Nenhuma correção encontrada.</li>
+            <li class="row-itens">Nenhuma correção encontrada.</li>
             {% endfor %}
         </ul>
     </div>
@@ -49,38 +54,39 @@
                 </div>
                 <div class="modal-body">
                     <div id="correctionModal_AlertPlaceHolder">
-                    </div>    
+                    </div>
                     <!-- Formulário de envio para extração de texto -->
                     <form id="answerForm" method="POST" enctype="multipart/form-data" action="{% url 'extract_text' %}">
                         {% csrf_token %}
                         <div class="form-group">
-                            <input type="hidden" name="question" value="{{ activity.question }}">
                             <label for="studentName">Aluno</label>
                             <select class="form-control" id="studentName" name="studentName">
                                 <option value="" disabled selected>Selecione um aluno</option>
                                 {% for student in students %}
-                                    <option value="{{ student.id }}">{{ student.name }}</option>
+                                <option value="{{ student.id }}">{{ student.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div>
                         <div id="studentAnswerdiv" class="form-group">
                             <label for="studentAnswer">Resposta do aluno</label>
-                            <input type="file" class="form-control-file" id="studentAnswer" name="studentAnswer" required>
+                            <input type="file" class="form-control-file" id="studentAnswer" name="studentAnswer"
+                                required>
                         </div>
                         <div id="checkboxdiv" class="form-group d-flex justify-content-between align-items-center">
                             <label for="answer_based" class="d-flex justify-content-between align-items-center w-100">
                                 Correção baseada na resposta do professor
-                                <input type="checkbox" id="answer_based" name="answer_based" class="ml-2" onclick="checkboxClicked()"/>
+                                <input type="checkbox" id="answer_based" name="answer_based" class="ml-2"
+                                    onclick="checkboxClicked()" />
                             </label>
-                        </div> 
+                        </div>
                         <div id="teacherAnswerDiv" class="form-group display-tags">
                             <label for="teacherAnswer">Resposta do professor</label>
                             <textarea class="form-control" id="teacherAnswer" name="teacherAnswer" rows="3"> </textarea>
-                        </div>  
+                        </div>
                         <div id="extract_valuediv" class="form-group display-tags">
                             <label for="extract_value">Texto extraído</label>
-                            <textarea class="form-control" id="extract_value" name="extract_value" rows="3" placeholder="" readonly></textarea>
+                            <textarea class="form-control" id="extract_value" name="extract_value" rows="3"
+                                placeholder="" readonly></textarea>
                         </div>
                         <div id="scorediv" class="form-group display-tags">
                             <label for="score">Nota</label>
@@ -88,21 +94,24 @@
                         </div>
                         <div id="feedbackdiv" class="form-group display-tags">
                             <label for="feedback">Feedback</label>
-                            <textarea class="form-control" id="feedback" name="feedback" rows="3" placeholder=""></textarea>
+                            <textarea class="form-control" id="feedback" name="feedback" rows="3"
+                                placeholder=""></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button id="corrigirButton" type="button" class="btn btn-primary" onclick="startCorrection()">Corrigir</button>
-                    <button id="salvarButton" type="button" class="btn btn-primary display-tags" onclick="saveCorrection({{ activity.id }})">Salvar</button>
+                    <button id="corrigirButton" type="button" class="btn btn-primary"
+                        onclick="startCorrection()">Corrigir</button>
+                    <button id="salvarButton" type="button" class="btn btn-primary display-tags"
+                        onclick="saveCorrection({{ activity.id }})">Salvar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                </div>  
+                </div>
             </div>
         </div>
     </div>
 
-    <!--Formulário de edição da correção-->
-    <div class="modal fade" id="editActivityModal" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editActivityModal" tabindex="-1" aria-labelledby="editActivityModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -111,30 +120,36 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form method="POST" action="{% url 'update_activity' activity.id %}">
+                <form id="editActivityForm" method="POST" action="{% url 'update_activity' activity.id %}"
+                    onsubmit="validateUpdateActivityForm(event)">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="activityName">Nome da Atividade</label>
-                            <input type="text" class="form-control" id="activityName" name="name" value="{{ activity.name }}" required>
+                            <input type="text" class="form-control" id="activityName" name="name"
+                                value="{{ activity.name }}" required>
                         </div>
                         <div class="form-group">
                             <label for="activityDescription">Descrição</label>
-                            <textarea class="form-control" id="activityDescription" name="description" rows="3">{{ activity.description }}</textarea>
+                            <textarea class="form-control" id="activityDescription" name="description"
+                                rows="3">{{ activity.description }}</textarea>
                         </div>
                         <div class="form-group">
                             <label for="activityQuestion">Questão</label>
-                            <textarea class="form-control" id="activityQuestion" name="question" rows="3" required>{{ activity.question }}</textarea>
+                            <textarea class="form-control" id="activityQuestion" name="question" rows="3"
+                                required>{{ activity.question }}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Salvar</button>
-                        <button type="submit" formaction="{% url 'delete_activity' activity.id %}" class="btn btn-delete ml-2">Deletar</button>
+                        <button type="submit" formaction="{% url 'delete_activity' activity.id %}"
+                            class="btn btn-delete ml-2">Deletar</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -142,6 +157,47 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="{% static 'js/utils.js' %}"></script>
     <script src="{% static 'js/scripts.js' %}"></script>
+    <script>
+        function validateUpdateActivityForm(event) {
+            event.preventDefault(); // Impede o envio do formulário até que seja validado
+
+            const name = document.getElementById('activityName').value.trim();
+            const description = document.getElementById('activityDescription').value.trim();
+            const question = document.getElementById('activityQuestion').value.trim();
+
+            const errors = [];
+
+            // Validações
+            if (name.length > 50) {
+                errors.push("O nome da atividade deve ter no máximo 50 caracteres.");
+            }
+            if (description.length > 1000) {
+                errors.push("A descrição da atividade deve ter no máximo 1000 caracteres.");
+            }
+            if (question.length > 200) {
+                errors.push("A questão deve ter no máximo 200 caracteres.");
+            }
+
+            if (errors.length > 0) {
+                // Exibe cada erro em um toast separado
+                errors.forEach(error => {
+                    showMessage({
+                        message: error,
+                        type: "toast",
+                        severity: "error"
+                    });
+                });
+                return; // Não envia o formulário se houver erros
+            }
+
+            // Se não houver erros, submete o formulário
+            document.getElementById('editActivityForm').submit();
+        }
+
+
+    </script>
+
 
 </body>
+
 </html>

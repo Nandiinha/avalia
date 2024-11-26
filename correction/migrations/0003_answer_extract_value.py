@@ -4,14 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
-        ("correction", "0002_alter_answer_score"),
+        ('correction', '0002_alter_answer_score'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="answer",
-            name="extract_value",
+            model_name='answer',
+            name='extract_value',
             field=models.CharField(blank=True, max_length=1000, null=True),
         ),
     ]

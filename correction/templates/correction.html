@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,6 +9,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 </head>
+
 <body>
     <!--Referência tela de menu-->
     {% include 'menu.html' %}
@@ -17,39 +19,114 @@
             <div class="form-top">
                 <h5 class="modal-title">Detalhes da correção</h5>
             </div>
-            
+
             <!-- Formulário para atualizar a correção -->
-            <form action="{% url 'update_correction' answer.id %}" method="POST">
+            <form action="{% url 'update_correction' answer.id %}" method="POST" id="editCorrectionForm">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="editStudent">Aluno</label>
                     <select class="form-control" id="studentName" name="studentName">
                         <option value="" disabled></option>
                         {% for student in students %}
-                            <option value="{{ student.id }}" {% if student.id == answer.id_student.id %}selected{% endif %}>
-                                {{ student.name }}
-                            </option>
+                        <option value="{{ student.id }}" {% if student.id==answer.id_student.id %}selected{% endif %}>
+                            {{ student.name }}
+                        </option>
                         {% endfor %}
                     </select>
                     <div id="extract_valuediv" class="form-group">
                         <label for="extract_value">Texto extraído</label>
-                        <textarea class="form-control" id="extract_value" name="extract_value" rows="2" placeholder="" readonly>{{ answer.extract_value }}</textarea>
+                        <textarea class="form-control" id="extract_value" name="extract_value" rows="2" placeholder=""
+                            readonly>{{ answer.extract_value }}</textarea>
                     </div>
                     <div id="scorediv" class="form-group">
                         <label for="editScore">Nota</label>
-                        <input class="form-control" id="score" name="score" rows="3" placeholder="" value="{{ answer.score }}"></input>
+                        <input class="form-control" id="score" name="score" rows="3" placeholder=""
+                            value="{{ answer.score }}" required></input>
                     </div>
                     <div id="feedbackdiv" class="form-group">
                         <label for="editFeedback">Feedback</label>
-                        <textarea class="form-control" id="feedback" name="feedback" rows="2" placeholder="">{{ answer.feedback }}</textarea>
-                    </div>              
+                        <textarea class="form-control" id="feedback" name="feedback" rows="3" placeholder=""
+                            required>{{ answer.feedback }}</textarea>
+                    </div>
                     <div class="form-group text-right">
-                        <button type="submit" formaction="{% url 'delete_correction' answer.id %}" class="btn btn-delete ml-2">Deletar</button>
+                        <button type="submit" formaction="{% url 'delete_correction' answer.id %}"
+                            class="btn btn-delete ml-2">Deletar</button>
                         <button type="submit" class="btn btn-primary">Salvar</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const editCorrectionForm = document.getElementById("editCorrectionForm");
+            const scoreField = document.getElementById("score");
+            const feedbackField = document.getElementById("feedback");
+
+            if (editCorrectionForm) {
+                // Intercepta o envio do formulário
+                editCorrectionForm.addEventListener("submit", function (e) {
+                    let isValid = true; // Controle de validação
+
+                    // Validação do campo Nota (score)
+                    const scoreValue = scoreField.value.trim();
+                    const scorePattern = /^\d{1,2}(\.\d{1,2})?$/; // Formato: X ou X.XX
+                    const parsedScore = parseFloat(scoreValue);
+
+                    if (!scorePattern.test(scoreValue)) {
+                        isValid = false;
+                        showMessage({
+                            message: "O campo nota deve conter apenas números no formato X ou X.XX.",
+                            type: "toast",
+                            severity: "error"
+                        });
+                    } else if (parsedScore < 0 || parsedScore > 10) {
+                        isValid = false;
+                        showMessage({
+                            message: "A nota deve estar entre 0.00 e 10.00.",
+                            type: "toast",
+                            severity: "error"
+                        });
+                    } else if (
+                        scoreValue.split(".")[0].length > 2 ||
+                        (scoreValue.includes(".") && scoreValue.split(".")[1].length > 2)
+                    ) {
+                        isValid = false;
+                        showMessage({
+                            message: "A nota deve ter no máximo 2 dígitos antes e 2 após o ponto decimal.",
+                            type: "toast",
+                            severity: "error"
+                        });
+                    }
+
+                    // Validação do campo Feedback
+                    if (feedbackField.value.trim().length > 1000) {
+                        isValid = false;
+                        showMessage({
+                            message: "O feedback deve ter no máximo 1000 caracteres.",
+                            type: "toast",
+                            severity: "error"
+                        });
+                    }
+
+                    // Impedir envio do formulário se houver erros
+                    if (!isValid) {
+                        e.preventDefault(); // Impede o envio do formulário
+                    }
+                });
+            } else {
+                console.error("Formulário 'editCorrectionForm' não encontrado.");
+            }
+        });
+    </script>
+
+
 </body>
+
 </html>

@@ -1,16 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
-*{
+* {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-body{
+
+body {
     min-height: 100vh;
     background: #ebebeb;
 }
-.navigation{
+
+.navigation {
     position: fixed;
     width: 60px;
     height: 100%;
@@ -18,27 +20,34 @@ body{
     transition: 0.5s;
     overflow: hidden;
 }
+
 .navigation.active,
 .navigation:hover {
     width: 200px;
 }
+
 .navigation ul {
-   position: absolute;
-   top: 0;
-   left: 0;
-   width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
-.navigation ul li{
+
+.navigation ul li {
     position: relative;
     width: 100%;
     list-style: none;
 }
-.navigation ul li:hover{
+
+.navigation ul li:hover {
     background: #1c2541;
 }
+
 .navigation ul li.config {
-    margin-top: 280px; /* ou o valor desejado para a margem superior */
+    margin-top: 280px;
+    /* ou o valor desejado para a margem superior */
 }
+
 .navigation ul li a {
     position: relative;
     display: block;
@@ -47,7 +56,8 @@ body{
     text-decoration: none;
     color: #ebebeb;
 }
-.navigation ul li a .icon{
+
+.navigation ul li a .icon {
     position: relative;
     display: block;
     min-width: 60px;
@@ -55,9 +65,11 @@ body{
     line-height: 60px;
     text-align: center;
 }
-.navigation ul li a .icon .fa-solid{
+
+.navigation ul li a .icon .fa-solid {
     font-size: 20px;
 }
+
 .navigation ul li a .title {
     position: relative;
     display: block;
@@ -67,7 +79,8 @@ body{
     text-align: start;
     white-space: nowrap;
 }
-.toggle{
+
+.toggle {
     position: absolute;
     top: 0;
     right: 0;
@@ -76,10 +89,12 @@ body{
     background: #3A506B;
     cursor: pointer;
 }
-.toggle.active{
+
+.toggle.active {
     background: #1c2541;
 }
-.toggle:before{
+
+.toggle:before {
     content: '\f0c9';
     font-family: fontAwesome;
     position: absolute;
@@ -90,18 +105,22 @@ body{
     font-size: 20px;
     color: #ebebeb;
 }
-.toggle.active:before{
-    content: '\f00d'; 
+
+.toggle.active:before {
+    content: '\f00d';
 }
-@media (max-width:767px){
-    .navigation{
+
+@media (max-width:767px) {
+    .navigation {
         left: -60px;
     }
-    .navigation.active{
+
+    .navigation.active {
         left: 0px;
         width: 100%;
     }
 }
+
 .navbar {
     background-color: #3A506B;
     border-color: #3A506B;
@@ -109,22 +128,30 @@ body{
     font-size: 20px;
     height: 60px;
     display: flex;
-    align-items: center; /* Centraliza verticalmente */
+    align-items: center;
+    /* Centraliza verticalmente */
 }
+
 .navbar .navbar-brand {
-    color: #ebebeb; /* Define a cor da fonte */
+    color: #ebebeb;
+    /* Define a cor da fonte */
 }
+
 .navbar .navbar-brand:hover,
 .navbar .navbar-brand:focus,
 .navbar .navbar-brand:active {
-  color: #ebebeb; /* Mantém a cor da fonte quando em hover, focus ou active */
+    color: #ebebeb;
+    /* Mantém a cor da fonte quando em hover, focus ou active */
 }
+
 main.cards {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    margin-top: 32px; /* adiciona um espaçamento acima dos cards */
+    margin-top: 32px;
+    /* adiciona um espaçamento acima dos cards */
 }
+
 main.cards section.card {
     display: flex;
     flex-direction: column;
@@ -134,31 +161,41 @@ main.cards section.card {
     padding: 1rem 1.5rem;
     border-radius: 8px;
     height: 200px;
-    width: calc(33.33% - 150px); 
+    width: calc(33.33% - 150px);
     margin-bottom: 32px;
-    margin-right: 32px; /* adiciona espaço entre os cards */
-    transition: box-shadow 0.3s ease; /*sombra*/
-    border: 1px solid #5c5c5c; /* Cor e espessura da borda */
+    margin-right: 32px;
+    /* adiciona espaço entre os cards */
+    transition: box-shadow 0.3s ease;
+    /*sombra*/
+    border: 1px solid #5c5c5c;
+    /* Cor e espessura da borda */
 }
 
 main.cards section.card:nth-child(3n+1) {
-    margin-left: 232px; /* adicio a margem para a navigation não tampar para o primeiro card de cada linha */
+    margin-left: 232px;
+    /* adicio a margem para a navigation não tampar para o primeiro card de cada linha */
 }
+
 main.cards section.card:hover {
-    box-shadow: 0 4px 6px #5c5c5c; /* Adicione o efeito sombreado desejado */
+    box-shadow: 0 4px 6px #5c5c5c;
+    /* Adicione o efeito sombreado desejado */
 }
+
 main.cards section.card h3 {
     font-size: 100%;
     margin: 16px 0;
     height: 70px;
 }
+
 main.cards section.card span {
     font-weight: 300;
     max-width: 240px;
     font-size: 10;
     margin-bottom: 16px;
 }
-main.cards section.card .card-image { /*gambiarra*/
+
+main.cards section.card .card-image {
+    /*gambiarra*/
     display: flex;
     margin-top: -12px;
     margin-right: -15px;
@@ -166,8 +203,9 @@ main.cards section.card .card-image { /*gambiarra*/
     width: 275px;
     height: 32px;
 }
-main.cards section.card .card-image img{
-    border-radius: 4px; 
+
+main.cards section.card .card-image img {
+    border-radius: 4px;
 }
 
 a.btn {
@@ -177,20 +215,24 @@ a.btn {
     cursor: pointer;
     font-size: 80%;
     font-weight: 500;
-    margin-bottom: 16px;
+    margin-bottom: 16px 0;
     background: #dadada;
     text-align: center;
     display: inline-block;
     text-decoration: none;
-    color: #000; /* Cor do texto do botão */
+    color: #000;
+    /* Cor do texto do botão */
 }
 
 a.btn:hover,
 a.btn:focus,
 a.btn:active {
-  color: #ebebeb; /* Cor do texto ao passar o mouse */
-  background-color: #5BC0BE; /* Fundo do botão ao passar o mouse */
+    color: #ebebeb;
+    /* Cor do texto ao passar o mouse */
+    background-color: #5BC0BE;
+    /* Fundo do botão ao passar o mouse */
 }
+
 /*main.cards section.card button {
     padding: 0.5rem 8rem;
     border-radius: 18px;
@@ -210,11 +252,14 @@ main.cards section.card button:active {
 
 @media screen and (max-width: 720px) {
     main.cards section.card {
-      width: 100%; /* altera a largura para ocupar a largura total em um dispositivo móvel */
-      margin-left: 0;
-      margin-right: 0; /* remove a margem direita em dispositivos móveis */
+        width: 100%;
+        /* altera a largura para ocupar a largura total em um dispositivo móvel */
+        margin-left: 0;
+        margin-right: 0;
+        /* remove a margem direita em dispositivos móveis */
     }
-  }
+}
+
 .modal-content button {
     padding: 0.5rem 1rem;
     border-radius: 4px;
@@ -225,18 +270,27 @@ main.cards section.card button:active {
     margin-bottom: 16px 0;
     background: #3A506B;
 }
+
 .modal-content button:hover,
 .modal-content button:focus,
 .modal-content button:active {
-    color: #ebebeb; /* Cor do texto ao passar o mouse */
-    background-color: #5BC0BE; /* Fundo do botão ao passar o mouse */
-    border-color: #5BC0BE; /* Borda do botão ao passar o mouse */
+    color: #ebebeb;
+    /* Cor do texto ao passar o mouse */
+    background-color: #5BC0BE;
+    /* Fundo do botão ao passar o mouse */
+    border-color: #5BC0BE;
+    /* Borda do botão ao passar o mouse */
 }
+
 .modal-header {
-    background-color: #3A506B; /* Cor de fundo */
-    color: #ebebeb; /* Cor da fonte */
-    padding: 1rem; /* Espaçamento interno */
+    background-color: #3A506B;
+    /* Cor de fundo */
+    color: #ebebeb;
+    /* Cor da fonte */
+    padding: 1rem;
+    /* Espaçamento interno */
 }
+
 .list-group .list-group-item {
     font-family: fontAwesome;
     height: 80px;
@@ -248,28 +302,36 @@ main.cards section.card button:active {
 }
 
 .list-group-item:first-child {
-    margin-top: 40px; /* Ajuste o valor conforme necessário */
+    margin-top: 40px;
+    /* Ajuste o valor conforme necessário */
 }
 
 .conteudo-item {
-    display: none; /* Oculta todos os conteúdos inicialmente */
+    display: none;
+    /* Oculta todos os conteúdos inicialmente */
 }
 
 .list-group-item a {
-    color: #3A506B; /* Substitua pela cor desejada */
-    text-decoration: none; /* Remove o sublinhado padrão */
+    color: #3A506B;
+    /* Substitua pela cor desejada */
+    text-decoration: none;
+    /* Remove o sublinhado padrão */
 }
 
 .list-group-item a:hover {
-    color: #5BC0BE; /* Cor do link ao passar o mouse */
-    text-decoration: underline; /* Adiciona sublinhado ao passar o mouse */
+    color: #5BC0BE;
+    /* Cor do link ao passar o mouse */
+    text-decoration: underline;
+    /* Adiciona sublinhado ao passar o mouse */
 }
+
 .center-container {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #ebebeb; /* Fundo escuro para parecer um modal */
+    background-color: #ebebeb;
+    /* Fundo escuro para parecer um modal */
 }
 
 .form-container {
@@ -279,7 +341,6 @@ main.cards section.card button:active {
     border: 1px solid #5c5c5c;
     width: 500px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-top: -70px;
 }
 
 .form-container .btn {
@@ -296,45 +357,64 @@ main.cards section.card button:active {
 .form-container .btn:hover,
 .form-container .btn:focus,
 .form-container .btn:active {
-  color: #ebebeb; /* Cor do texto ao passar o mouse */
-  background-color: #5BC0BE; /* Fundo do botão ao passar o mouse */
-  border-color: #5BC0BE; /* Borda do botão ao passar o mouse */
+    color: #ebebeb;
+    /* Cor do texto ao passar o mouse */
+    background-color: #5BC0BE;
+    /* Fundo do botão ao passar o mouse */
+    border-color: #5BC0BE;
+    /* Borda do botão ao passar o mouse */
 }
+
 .form-top {
-    background-color: #3A506B; /* Cor de fundo */
-    color: #fff; /* Cor da fonte */
-    padding: 1rem; /* Espaçamento interno */
-    text-align: center; /* Centralizar texto */
+    background-color: #3A506B;
+    /* Cor de fundo */
+    color: #fff;
+    /* Cor da fonte */
+    padding: 1rem;
+    /* Espaçamento interno */
+    text-align: center;
+    /* Centralizar texto */
     margin-bottom: 20px;
 }
 
 .btn-delete {
     background: #dadada;
     color: white;
-    border: none; 
-    padding: 10px 20px; 
-    border-radius: 5px; /* Borda arredondada */
-    cursor: pointer; /* Muda o cursor para indicar que é clicável */
-    transition: background-color 0.3s ease; 
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    /* Borda arredondada */
+    cursor: pointer;
+    /* Muda o cursor para indicar que é clicável */
+    transition: background-color 0.3s ease;
 }
-.btn-delete:hover, .btn-delete:focus, .btn-delete:active {
-    color: #ebebeb; /* Cor do texto ao passar o mouse */
-    background-color: #5BC0BE; /* Fundo do botão ao passar o mouse */
-    border-color: #5BC0BE; /* Borda do botão ao passar o mouse */
+
+.btn-delete:hover,
+.btn-delete:focus,
+.btn-delete:active {
+    color: #ebebeb;
+    /* Cor do texto ao passar o mouse */
+    background-color: #5BC0BE;
+    /* Fundo do botão ao passar o mouse */
+    border-color: #5BC0BE;
+    /* Borda do botão ao passar o mouse */
 }
 
 
 .nav-link.active {
-    color: #3A506B ;
+    color: #3A506B;
 }
 
 .content-item {
     max-width: 100%;
 }
+
 .content-item .row-itens {
-    width: 80%; /* Garante que o item ocupe toda a largura do container */
+    width: 80%;
+    /* Garante que o item ocupe toda a largura do container */
     height: 60px;
-    display: block; /* Exibe os itens como blocos */
+    display: block;
+    /* Exibe os itens como blocos */
     margin-left: 10%;
     margin-bottom: 10px;
     padding: 20px 20px 20px 25px;
@@ -344,33 +424,41 @@ main.cards section.card button:active {
     color: #7c7c7d;
     font-size: 20px;
     border: none;
-    text-decoration: none;   
+    text-decoration: none;
 }
 
 /* Seleciona o botão com a classe row-itens */
 button.row-itens {
-    background-color: #3A506B; /* Cor de fundo inicial */
-    color: #ebebeb; /* Cor do texto inicial */
+    background-color: #3A506B;
+    /* Cor de fundo inicial */
+    color: #ebebeb;
+    /* Cor do texto inicial */
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Adiciona uma transição suave para a mudança de cor */
+    transition: background-color 0.3s ease;
+    /* Adiciona uma transição suave para a mudança de cor */
 }
 
 button.row-itens:hover {
-    background-color: #5BC0BE; /* Cor de fundo ao passar o mouse */
-    color: #ebebeb; /* Cor do texto ao passar o mouse */
+    background-color: #5BC0BE;
+    /* Cor de fundo ao passar o mouse */
+    color: #ebebeb;
+    /* Cor do texto ao passar o mouse */
 }
 
 a.row-itens:hover {
-    background-color: #5BC0BE; /* Cor de fundo ao passar o mouse */
-    color: #ebebeb; /* Cor do texto ao passar o mouse */
+    background-color: #5BC0BE;
+    /* Cor de fundo ao passar o mouse */
+    color: #ebebeb;
+    /* Cor do texto ao passar o mouse */
 }
 
 /* Caixa principal da atividade */
 .activity-details-box {
-    width: 80%; /* Ou ajuste para a mesma largura que `.row-itens` */
+    width: 80%;
+    /* Ou ajuste para a mesma largura que `.row-itens` */
     margin-top: 20px;
     margin-left: 138px;
     padding: 20px;
@@ -405,16 +493,25 @@ a.row-itens:hover {
     display: none;
 }
 
+/* CSS para permitir empilhamento */
+.toast {
+    margin-bottom: 10px;
+    /* Define o espaço entre os toasts empilhados */
+    z-index: 1051;
+    /* Garante que os toasts fiquem no topo, mas não sobreponham */
+}
+
 .container-empty {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 60px); 
+    min-height: calc(100vh - 60px);
     text-align: center;
-    background-color: #ebebeb; 
+    background-color: #ebebeb;
     margin-left: 350px;
 }
+
 .container-empty h1,
 .container-empty p,
 .container-empty a {
@@ -430,7 +527,7 @@ a.row-itens:hover {
 }
 
 #checkboxdiv input[type="checkbox"] {
-    cursor: pointer; 
+    cursor: pointer;
     box-sizing: border-box;
     margin-right: 50px;
     transform: scale(1.5);

@@ -215,17 +215,33 @@ def delete(request, id):
 
 # ATIVIDADE
 @login_required(login_url="/correction/login")
-def activities(request, id):
-    try:
-        id_class = Turma.objects.get(id=id, user=request.user)
-        activities = Activity.objects.filter(id_class=id_class)
-    except Turma.DoesNotExist:
-        # Renderiza uma página com a mensagem de erro
-        return render(request, "partials/message.html", status=403)
+def create_activity(request, id):
+    id_class = get_object_or_404(Turma, id=id)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        question = request.POST.get('question')
+        # Validação dos campos
+        if len(name) > 50:
+            messages.error(request, "O nome deve ter no máximo 50 caracteres.")
+            return redirect('activities', id=id)
+        if len(description) > 1000:
+            messages.error(request, "A descrição deve ter no máximo 1000 caracteres.")
+            return redirect('activities', id=id)
+        if len(question) > 200:
+            messages.error(request, "A questão deve ter no máximo 200 caracteres.")
+            return redirect('activities', id=id)
+        activity = Activity.objects.create(
+            name=name, 
+            id_class=id_class, 
+            description=description, 
+            question=question
+        )
+        activity.save()
+        return redirect('activities', id=id_class.id)
+    return render(request, 'create_activity.html')  # Caso GET seja chamado
 
-    return render(
-        request, "activities.html", {"activities": activities, "turma": id_class}
-    )
 
 
 @login_required(login_url="/correction/login")
@@ -272,6 +288,17 @@ def update_activity(request, id):
             name = request.POST.get("name")
             description = request.POST.get("description")
             question = request.POST.get("question")
+
+	 # Validação dos campos
+        if len(name) > 50:
+            messages.error(request, "O nome deve ter no máximo 50 caracteres.")
+            return redirect('select_activity', id=id)
+        if len(description) > 1000:
+            messages.error(request, "A descrição deve ter no máximo 1000 caracteres.")
+            return redirect('select_activity', id=id)
+        if len(question) > 200:
+            messages.error(request, "A questão deve ter no máximo 200 caracteres.")
+            return redirect('select_activity', id=id)
             activity.name = name
             activity.description = description
             activity.question = question
@@ -281,8 +308,6 @@ def update_activity(request, id):
         return render(request, "partials/message.html", status=403)
 
     return redirect("select_activity", id=id)
-
-
 @login_required(login_url="/correction/login")
 def delete_activity(request, id):
     try:

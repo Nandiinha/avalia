@@ -38,11 +38,12 @@
                 </div>
                 <div class="modal-body">
                     <div id="activityModalErrorPlaceHolder"></div>
-                    <form id="activityForm" method="POST" enctype="multipart/form-data" action="{% url 'create_activity' turma.id %}">
+                    <form id="activityForm" method="POST" enctype="multipart/form-data" 
+                          action="{% url 'create_activity' turma.id %}" onsubmit="validateActivityForm(event)">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="activityName">Nome</label>
-                            <input type="text" class="form-control" id="activityName" name="name" placeholder="Nome da atividade" required>
+                            <input type="text" class="form-control" id="activityName" name="name" required placeholder="Nome da atividade">
                         </div>
                         <div class="form-group">
                             <label for="activityDescription">Descrição</label>
@@ -50,31 +51,61 @@
                         </div>
                         <div class="form-group">
                             <label for="activityQuestion">Questão</label>
-                            <textarea class="form-control" id="question" name="question" rows="3" placeholder="Escreva o enunciado da questão" required></textarea>
+                            <textarea class="form-control" id="activityQuestion" name="question" rows="3" placeholder="Escreva o enunciado da questão" required></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="submit" class="btn btn-primary" onclick="submitForm()">Salvar</button>
+                    <button type="submit" class="btn btn-primary" form="activityForm">Salvar</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="{% static 'js/utils.js' %}"></script>
+    
     <script>
-        function submitForm() {
-            try{
-                document.getElementById('activityForm').submit();
-            }catch(erro){
-                showMessage({message:error.message, type:'alert', severity:'error', containerId:'activityModalErrorPlaceHolder'})
-            }   
+        function validateActivityForm(event) {
+            event.preventDefault(); // Impede o envio do formulário até que seja validado
+        
+            const name = document.getElementById('activityName').value.trim();
+            const description = document.getElementById('activityDescription').value.trim();
+            const question = document.getElementById('activityQuestion').value.trim();
+        
+            const errors = [];
+        
+            // Validações
+            if (name.length > 50) {
+                errors.push("O nome deve ter no máximo 50 caracteres.");
+            }
+            if (description.length > 1000) {
+                errors.push("A descrição deve ter no máximo 1000 caracteres.");
+            }
+            if (question.length > 200) {
+                errors.push("A questão deve ter no máximo 200 caracteres.");
+            }
+        
+            if (errors.length > 0) {
+                // Exibe cada erro como um toast
+                errors.forEach(error => {
+                    showMessage({
+                        message: error,
+                        type: "toast",  // Tipo de mensagem é toast
+                        severity: "error"  // Severidade é "error"
+                    });
+                });
+                return; // Não envia o formulário se houver erros
+            }
+        
+            // Envia o formulário caso não haja erros
+            event.target.submit();
         }
     </script>
+    
 </body>
 </html>

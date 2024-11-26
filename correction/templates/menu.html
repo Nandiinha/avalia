@@ -1,14 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 </head>
+
 <body>
     <nav class="navbar navbar-light bg-faded">
         <a class="navbar-brand">Avalia</a>
@@ -49,11 +53,13 @@
     </div>
     <div class="toggle" onclick="toggleMenu();"></div>
     <!-- Modal para Nova Turma -->
-    <div class="modal fade" id="novaTurmaModal" tabindex="-1" role="dialog" aria-labelledby="novaTurmaModalLabel" aria-hidden="true">
-        <div class="modal-dialog" >
+    <div class="modal fade" id="novaTurmaModal" tabindex="-1" role="dialog" aria-labelledby="novaTurmaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <div id="caracter_limit_error"></div>
                         <h5 class="modal-title" id="novaTurmaModalLabel">Nova Turma</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
                             <span aria-hidden="true">&times;</span>
@@ -64,12 +70,14 @@
                             {% csrf_token %}
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="nomeTurma" class="col-form-label">Nome da Turma:</label>
-                                    <input type="text" name="name">
+                                    <label for="nomeTurma" class="col-form-label">Nome</label>
+                                    <input type="text" class="form-control" id="nomeTurma" name="name" required
+                                        placeholder="Nome da turma">
                                 </div>
                                 <div class="form-group">
-                                    <label for="secao" class="col-form-label">Seção:</label>
-                                    <input type="text" name="section">
+                                    <label for="secao" class="col-form-label">Seção</label>
+                                    <input type="text" name="section" id="secao" class="form-control"
+                                        placeholder="Seção da turma">
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -82,16 +90,70 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
     <script type="text/javascript">
-        function toggleMenu(){
+        function toggleMenu() {
             let navigation = document.querySelector('.navigation');
             let toggle = document.querySelector('.toggle');
             navigation.classList.toggle('active');
             toggle.classList.toggle('active');
         }
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+            const nomeField = document.getElementById("nomeTurma");
+            const secaoField = document.getElementById("secao");
+            const campoInvalido = document.getElementById("caracter_limit_error");
+
+            console.log("Teste");
+
+            // Garantir que o evento de submit seja interceptado corretamente
+            form.addEventListener("submit", function (e) {
+                let isValid = true;
+                let errorMessage = '';
+
+                // Verifica o tamanho do campo Nome
+                if (nomeField.value.trim().length > 100) {
+                    console.log("Erro no campo Nome");
+                    isValid = false;
+                    errorMessage = 'Você excedeu o número de caracteres para o campo Nome.';
+                    showMessage({
+                        message: errorMessage,
+                        type: 'toast',
+                        severity: 'error',
+                        containerId: 'caracter_limit_error'
+                    });
+                }
+
+                // Verifica o tamanho do campo Seção
+                if (secaoField.value.trim().length > 100) {
+                    console.log("Erro no campo Seção");
+                    isValid = false;
+                    errorMessage = 'Você excedeu o número de caracteres para o campo Seção.';
+                    showMessage({
+                        message: errorMessage,
+                        type: 'toast',
+                        severity: 'error',
+                        containerId: 'caracter_limit_error'
+                    });
+                }
+
+                // Se qualquer campo for inválido, impede o envio
+                if (!isValid) {
+                    e.preventDefault(); // Impede a submissão do formulário
+                    console.log("Formulário não enviado");
+                }
+            });
+        });
+    </script>
+
 </body>
+
 </html>
